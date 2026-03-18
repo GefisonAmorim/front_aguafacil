@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Água Fácil — </title>
+  <title>Água Fácil — Sistema de Distribuição</title>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- PARTÍCULAS E GRADE DE FUNDO -->
   <div id="particles"></div>
   <div class="grid-bg"></div>
 
   <div id="app">
 
     <!-- ══════════════════════════════════
-         HEADER
+         HEADER — fixo em todas as telas
     ══════════════════════════════════ -->
     <div class="header">
       <div class="header-logo">
@@ -36,160 +35,150 @@
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 1 — INICIAL / IDLE
+         S01 — IDLE
+         Toque em qualquer lugar para iniciar
     ══════════════════════════════════ -->
-    <div class="screen active" id="screen-inicio">
+    <div class="screen active" id="screen-idle" onclick="goto('screen-identificacao')">
       <div class="idle-visual">
         <span class="idle-drop">💧</span>
         <div class="idle-glow"></div>
       </div>
+      <div class="idle-card">
+        <div class="screen-title">Água Fácil</div>
+        <div class="screen-subtitle">Toque em qualquer lugar para iniciar</div>
+        <div class="idle-pulse">● Toque para começar</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S02 — IDENTIFICAÇÃO
+         Já tem cadastro ou é novo cliente?
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-identificacao">
       <div class="card" style="text-align:center">
         <div class="screen-title">Bem-vindo!</div>
-        <div class="screen-subtitle">Água Fácil direto para você</div>
+        <div class="screen-subtitle">Como deseja continuar?</div>
         <div class="btn-stack">
           <button class="btn btn-primary" onclick="goto('screen-cpf-existente')">
             <span class="btn-icon">👤</span>
             <div class="btn-content">
               <span class="btn-label">Já sou cliente</span>
-              <span class="btn-desc">Tenho cadastro — quero trocar ou comprar</span>
+              <span class="btn-desc">Tenho cadastro — quero comprar, trocar ou devolver</span>
             </div>
           </button>
           <button class="btn btn-secondary" onclick="goto('screen-cad-cpf')">
             <span class="btn-icon">✨</span>
             <div class="btn-content">
-              <span class="btn-label">Primeiro cadastro</span>
-              <span class="btn-desc">Ainda não tenho conta — quero me cadastrar</span>
+              <span class="btn-label">Primeiro acesso</span>
+              <span class="btn-desc">Ainda não tenho cadastro</span>
             </div>
           </button>
         </div>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-idle')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 2 — CLIENTE EXISTENTE: DIGITAR CPF
+         S03 — CPF CLIENTE EXISTENTE
     ══════════════════════════════════ -->
     <div class="screen" id="screen-cpf-existente">
       <div class="card">
         <div class="section-label">Identificação</div>
         <div class="screen-title" style="font-size:34px">Digite seu CPF</div>
         <div class="screen-subtitle" style="margin-bottom:20px">Informe seu CPF para continuar</div>
-
         <div class="numpad-display" id="cpf-existente-display">
           <span class="placeholder">___ ___ ___ __</span>
         </div>
-        <div class="numpad-hint">CPF: apenas números</div>
+        <div class="numpad-hint">Apenas números — 11 dígitos</div>
         <div class="numpad" id="numpad-cpf-existente"></div>
-
-        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-inicio')">← Voltar</button>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-identificacao')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 3 — MENU DO CLIENTE
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-menu-cliente">
-      <div class="card card-wide">
-        <div class="cliente-banner">
-          <div class="cliente-avatar">👤</div>
-          <div>
-            <div class="cliente-info-name" id="cliente-nome-display">Gefison</div>
-            <div class="cliente-info-sub" id="cliente-sub-display">CPF: •••.•••.•••-80 &nbsp;|&nbsp; 1 galão em comodato</div>
-          </div>
-        </div>
-
-        <div class="section-label mb8">O que você quer fazer?</div>
-        <div class="menu-grid">
-          <div class="menu-card highlight" onclick="goto('screen-troca-inserir')">
-            <div class="menu-card-icon">🔄</div>
-            <div class="menu-card-title">Trocar Galão</div>
-            <div class="menu-card-desc">Devolva o vazio e pegue um cheio</div>
-          </div>
-          <div class="menu-card" onclick="goto('screen-compra-pagamento')">
-            <div class="menu-card-icon">🛒</div>
-            <div class="menu-card-title">Comprar Água</div>
-            <div class="menu-card-desc">Adquirir mais um galão</div>
-          </div>
-          <div class="menu-card" onclick="goto('screen-devolucao-inserir')">
-            <div class="menu-card-icon">↩️</div>
-            <div class="menu-card-title">Devolver Galão</div>
-            <div class="menu-card-desc">Encerrar contrato de comodato</div>
-          </div>
-          <div class="menu-card" onclick="goto('screen-saldo')">
-            <div class="menu-card-icon">📊</div>
-            <div class="menu-card-title">Saldo / Histórico</div>
-            <div class="menu-card-desc">Ver galões e transações</div>
-          </div>
-        </div>
-
-        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-inicio')">← Sair</button>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         TELA 4 — CADASTRO: CPF
+         S04 — CADASTRO: CPF
+         Passo 1 de 4
     ══════════════════════════════════ -->
     <div class="screen" id="screen-cad-cpf">
       <div class="card">
         <div class="section-label">Cadastro — Passo 1 de 4</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
         <div class="screen-title" style="font-size:30px">Digite seu CPF</div>
         <div class="screen-subtitle" style="margin-bottom:16px">Será usado para identificá-lo na máquina</div>
-
         <div class="numpad-display" id="cpf-cad-display">
           <span class="placeholder">___ ___ ___ __</span>
         </div>
         <div class="numpad-hint">Apenas números — 11 dígitos</div>
         <div class="numpad" id="numpad-cpf-cad"></div>
-
-        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-inicio')">← Voltar</button>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-identificacao')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 5 — CADASTRO: NOME
+         S05 — CADASTRO: NOME
+         Passo 2 de 4
     ══════════════════════════════════ -->
     <div class="screen" id="screen-cad-nome">
       <div class="card card-wide">
         <div class="section-label">Cadastro — Passo 2 de 4</div>
-        <div class="screen-title" style="font-size:30px">Digite seu nome</div>
-        <div class="screen-subtitle" style="margin-bottom:12px">Nome completo</div>
-
+        <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+        <div class="screen-title" style="font-size:30px">Seu nome completo</div>
+        <div class="screen-subtitle" style="margin-bottom:12px">Como prefere ser chamado?</div>
         <div class="text-input-display" id="nome-display">
-          <span class="ph">Seu nome completo...</span>
+          <span class="ph">Digite seu nome completo...</span>
         </div>
         <div class="keyboard" id="keyboard-nome"></div>
-
         <button class="btn btn-ghost w100 mt16" onclick="goto('screen-cad-cpf')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 6 — CADASTRO: TELEFONE
+         S06 — CADASTRO: EMAIL
+         Passo 3 de 4
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-cad-tel">
-      <div class="card">
+    <div class="screen" id="screen-cad-email">
+      <div class="card card-wide">
         <div class="section-label">Cadastro — Passo 3 de 4</div>
-        <div class="screen-title" style="font-size:30px">Seu telefone</div>
-        <div class="screen-subtitle" style="margin-bottom:16px">Para avisos e suporte</div>
-
-        <div class="numpad-display" id="tel-display">
-          <span class="placeholder">(__) _____-____</span>
+        <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        <div class="screen-title" style="font-size:30px">Seu e-mail</div>
+        <div class="screen-subtitle" style="margin-bottom:12px">Para envio de comprovantes</div>
+        <div class="text-input-display" id="email-display">
+          <span class="ph">exemplo@email.com...</span>
         </div>
-        <div class="numpad-hint">DDD + número com 11 dígitos</div>
-        <div class="numpad" id="numpad-tel"></div>
-
+        <div class="keyboard" id="keyboard-email"></div>
         <button class="btn btn-ghost w100 mt16" onclick="goto('screen-cad-nome')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 7 — CADASTRO: TERMO DE COMODATO
+         S07 — CADASTRO: TELEFONE
+         Passo 4 de 4
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-cad-tel">
+      <div class="card">
+        <div class="section-label">Cadastro — Passo 4 de 4</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+        <div class="screen-title" style="font-size:30px">Seu telefone</div>
+        <div class="screen-subtitle" style="margin-bottom:16px">Para avisos e suporte</div>
+        <div class="numpad-display" id="tel-display">
+          <span class="placeholder">(__) _____-____</span>
+        </div>
+        <div class="numpad-hint">DDD + número — 11 dígitos</div>
+        <div class="numpad" id="numpad-tel"></div>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-cad-email')">← Voltar</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S08 — CADASTRO: TERMO DE COMODATO
+         Último passo — estratégia de indução
     ══════════════════════════════════ -->
     <div class="screen" id="screen-cad-termo">
       <div class="card card-wide">
-        <div class="section-label">Cadastro — Passo 4 de 4</div>
+        <div class="section-label">Quase lá! — Aceite o termo</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
         <div class="screen-title" style="font-size:30px">Termo de Comodato</div>
-        <div class="screen-subtitle" style="margin-bottom:16px">Leia e aceite para continuar</div>
-
+        <div class="screen-subtitle" style="margin-bottom:16px">Leia e aceite para concluir seu cadastro</div>
         <div class="termo-box">
           <p>📋 <strong>CONTRATO DE COMODATO DE GALÃO</strong></p>
           <p>O galão de 20 litros entregue é de propriedade da empresa <strong>Água Leve Mogiana</strong>. O cliente recebe o galão em regime de comodato, ou seja, empréstimo gratuito enquanto for cliente ativo.</p>
@@ -197,9 +186,8 @@
           <p>Em caso de danos, perda ou retenção indevida do galão, o cliente ficará sujeito à cobrança do valor de reposição do equipamento.</p>
           <p>O uso indevido, revenda ou cessão do galão a terceiros sem autorização é expressamente proibido.</p>
         </div>
-
         <div class="btn-row">
-          <button class="btn btn-danger" onclick="goto('screen-inicio')" style="flex:.45">
+          <button class="btn btn-danger" onclick="goto('screen-idle')" style="flex:.45">
             <span>✕</span><span>Cancelar</span>
           </button>
           <button class="btn btn-success" onclick="concluirCadastro()">
@@ -211,68 +199,105 @@
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 8 — CADASTRO CONCLUÍDO + PAGAMENTO 1º GALÃO
+         S09 — MENU DO CLIENTE
+         Opções variam conforme galões em comodato
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-cad-ok">
-      <div class="card">
-        <div class="feedback-icon success">✅</div>
-        <div class="feedback-title" style="color:var(--verde)">Cadastro Concluído!</div>
-        <div class="feedback-msg mb8">Você receberá um galão em comodato.</div>
-
-        <div class="valor-box">
-          <div class="valor-label">Total a pagar</div>
-          <div class="valor-total">R$ <span class="valor-cents">25,00</span></div>
+    <div class="screen" id="screen-menu-cliente">
+      <div class="card card-wide">
+        <div class="cliente-banner">
+          <div class="cliente-avatar">👤</div>
+          <div>
+            <div class="cliente-info-name" id="cliente-nome-display">—</div>
+            <div class="cliente-info-sub" id="cliente-sub-display">Carregando...</div>
+          </div>
         </div>
-
-        <div style="margin:12px 0">
-          <div class="info-row"><span class="info-label">Água (recarga)</span><span class="info-value">R$ 15,00</span></div>
-          <div class="info-row"><span class="info-label">Caução do galão</span><span class="info-value">R$ 10,00</span></div>
+        <div class="section-label mb8">O que deseja fazer?</div>
+        <div class="menu-grid" id="menu-opcoes">
+          <!-- Opções renderizadas dinamicamente pelo JS conforme galões do cliente -->
         </div>
-
-        <button class="btn btn-primary mt8" onclick="goto('screen-compra-pagamento')">
-          <span class="btn-icon">💳</span>
-          <span>Escolher forma de pagamento</span>
-        </button>
+        <button class="btn btn-ghost w100 mt16" onclick="encerrarSessao()">← Sair</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 9 — PAGAMENTO
+         S10 — SELEÇÃO DE QUANTIDADE
+         Reutilizada para compra, troca e devolução
+         Contexto definido pelo JS (state.fluxo)
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-compra-pagamento">
+    <div class="screen" id="screen-quantidade">
       <div class="card">
-        <div class="screen-title" style="font-size:32px">Forma de Pagamento</div>
-        <div class="screen-subtitle">Escolha como deseja pagar</div>
+        <div class="section-label" id="qtd-label">Compra</div>
+        <div class="screen-title" style="font-size:32px" id="qtd-titulo">Quantos galões?</div>
+        <div class="screen-subtitle" id="qtd-subtitulo">Selecione a quantidade desejada</div>
 
-        <div class="valor-box" style="margin-bottom:24px">
-          <div class="valor-label">Total</div>
-          <div class="valor-total">R$ <span>25,00</span></div>
+        <div class="qtd-selector">
+          <button class="qtd-btn" id="qtd-menos" onclick="alterarQtd(-1)">−</button>
+          <div class="qtd-display">
+            <span id="qtd-numero">1</span>
+            <span class="qtd-unit">galão(ões)</span>
+          </div>
+          <button class="qtd-btn" id="qtd-mais" onclick="alterarQtd(1)">+</button>
         </div>
 
+        <div class="valor-box" style="margin:20px 0">
+          <div class="valor-label" id="qtd-valor-label">Total estimado</div>
+          <div class="valor-total">R$ <span id="qtd-total">15,00</span></div>
+        </div>
+
+        <div class="info-row" id="qtd-info-row" style="display:none">
+          <span class="info-label" id="qtd-info-label">Galões disponíveis</span>
+          <span class="info-value" id="qtd-info-valor">—</span>
+        </div>
+
+        <button class="btn btn-primary mt16" onclick="confirmarQuantidade()">
+          <span class="btn-icon" id="qtd-btn-icon">💳</span>
+          <span id="qtd-btn-texto">Avançar para pagamento</span>
+        </button>
+        <button class="btn btn-ghost w100 mt8" onclick="goto('screen-menu-cliente')">← Cancelar</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S11 — PAGAMENTO
+         Usado na compra e na troca
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-pagamento">
+      <div class="card">
+        <div class="section-label" id="pgto-label">Pagamento</div>
+        <div class="screen-title" style="font-size:32px">Forma de Pagamento</div>
+        <div class="screen-subtitle">Escolha como deseja pagar</div>
+        <div class="valor-box" style="margin-bottom:24px">
+          <div class="valor-label">Total</div>
+          <div class="valor-total">R$ <span id="pgto-total">15,00</span></div>
+        </div>
         <div class="payment-grid">
           <div class="payment-card" onclick="processarPagamento('PIX')">
             <div class="payment-card-icon">⚡</div>
             <div class="payment-card-label">PIX</div>
             <div class="payment-card-desc">Instantâneo</div>
           </div>
-          <div class="payment-card" onclick="processarPagamento('Cartão')">
+          <div class="payment-card" onclick="processarPagamento('Débito')">
             <div class="payment-card-icon">💳</div>
             <div class="payment-card-label">Débito</div>
-            <div class="payment-card-desc">Débito</div>
+            <div class="payment-card-desc">Cartão de débito</div>
           </div>
-          <div class="payment-card" onclick="processarPagamento('Cartão')">
-            <div class="payment-card-icon">💳</div>
+          <div class="payment-card" onclick="processarPagamento('Crédito')">
+            <div class="payment-card-icon">💎</div>
             <div class="payment-card-label">Crédito</div>
-            <div class="payment-card-desc">Crédito</div>
+            <div class="payment-card-desc">Cartão de crédito</div>
+          </div>
+          <div class="payment-card" onclick="processarPagamento('Parcelado')">
+            <div class="payment-card-icon">📅</div>
+            <div class="payment-card-label">Parcelado</div>
+            <div class="payment-card-desc">Crédito em parcelas</div>
           </div>
         </div>
-
-        <button class="btn btn-ghost w100 mt16" onclick="voltarDoMenu()">← Voltar</button>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-quantidade')">← Voltar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 10 — AGUARDANDO PAGAMENTO
+         S12 — AGUARDANDO PAGAMENTO
     ══════════════════════════════════ -->
     <div class="screen" id="screen-aguardando-pagamento">
       <div class="card" style="text-align:center">
@@ -282,15 +307,18 @@
         <div class="timer-bar mt16">
           <div class="timer-fill" id="timer-fill" style="width:100%"></div>
         </div>
-        <div style="color:var(--cinza);font-size:14px;margin-top:8px" id="timer-count">60s</div>
-        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-compra-pagamento')">← Cancelar</button>
+        <div style="color:var(--cinza);font-size:14px;margin-top:8px">
+          Tempo restante: <span id="timer-count">60</span>s
+        </div>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-pagamento')">← Cancelar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 11 — TROCA: INSERIR GALÃO VAZIO
+         S13 — RFID: INSERIR GALÃO VAZIO
+         Usado na troca e na devolução
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-troca-inserir">
+    <div class="screen" id="screen-rfid-inserir">
       <div class="card" style="text-align:center">
         <div class="rfid-animation">
           <div class="rfid-ring"></div>
@@ -298,12 +326,14 @@
           <div class="rfid-ring"></div>
           <div class="rfid-center">📡</div>
         </div>
-        <div class="screen-title" style="font-size:32px">Insira o Galão Vazio</div>
-        <div class="feedback-msg">
-          Coloque o galão vazio na entrada superior.<br>
-          O sistema vai identificá-lo automaticamente pelo RFID.
+        <div class="screen-title" style="font-size:32px" id="rfid-titulo">Insira o Galão Vazio</div>
+        <div class="feedback-msg" id="rfid-msg">
+          Coloque o galão vazio na entrada indicada.<br>
+          O sistema identificará automaticamente pelo RFID.
         </div>
-        <button class="btn btn-primary w100 mt16" onclick="simularLeituraRFID('troca')">
+
+        <!-- Botão de simulação — remover em produção -->
+        <button class="btn btn-secondary w100 mt16" onclick="simularLeituraRFID()">
           🔬 Simular leitura RFID
         </button>
         <button class="btn btn-ghost w100 mt8" onclick="goto('screen-menu-cliente')">← Cancelar</button>
@@ -311,45 +341,46 @@
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 12 — TROCA: GALÃO RECONHECIDO
+         S14 — RFID: GALÃO RECONHECIDO
+         Exibe confirmação antes de abrir porta
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-troca-reconhecido">
+    <div class="screen" id="screen-rfid-ok">
       <div class="card">
         <div class="feedback-icon success">✅</div>
-        <div class="feedback-title" style="color:var(--verde)">Galão Reconhecido!</div>
-
+        <div class="feedback-title" style="color:var(--verde)" id="rfid-ok-titulo">Galão Reconhecido!</div>
         <div style="margin:12px 0 20px">
           <div class="info-row">
             <span class="info-label">RFID do galão</span>
-            <span class="info-value highlight">E200 3412 AB7F</span>
+            <span class="info-value highlight" id="rfid-ok-tag">—</span>
           </div>
           <div class="info-row">
             <span class="info-label">Status</span>
             <span class="info-value" style="color:var(--verde)">Válido ✔</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Valor da recarga</span>
-            <span class="info-value">R$ 15,00</span>
+          <div class="info-row" id="rfid-ok-row-valor" style="display:none">
+            <span class="info-label">Galões devolvidos</span>
+            <span class="info-value" id="rfid-ok-valor">—</span>
           </div>
         </div>
-
-        <button class="btn btn-primary" onclick="goto('screen-compra-pagamento')">
-          <span class="btn-icon">💳</span><span>Pagar Recarga</span>
+        <button class="btn btn-primary" id="rfid-ok-btn" onclick="confirmarRFID()">
+          <span class="btn-icon">✔</span>
+          <span id="rfid-ok-btn-texto">Confirmar</span>
         </button>
         <button class="btn btn-ghost w100 mt8" onclick="goto('screen-menu-cliente')">← Cancelar</button>
       </div>
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 13 — RETIRAR GALÃO CHEIO
+         S15 — PORTA ABERTA
+         Abre após pagamento aprovado (compra/troca)
     ══════════════════════════════════ -->
-    <div class="screen" id="screen-retirar-galao">
+    <div class="screen" id="screen-porta-aberta">
       <div class="card" style="text-align:center">
         <div class="feedback-icon success" style="font-size:60px;width:110px;height:110px">🚪</div>
         <div class="feedback-title" style="color:var(--verde)">Porta Liberada!</div>
         <div class="feedback-msg">
-          <strong style="color:var(--azul-neon);font-size:22px">Porta Nº 3</strong><br><br>
-          Retire seu galão cheio.<br>
+          <strong style="color:var(--azul-neon);font-size:26px" id="porta-numero">Porta Nº —</strong><br><br>
+          <span id="porta-msg">Retire seu galão cheio.</span><br>
           O galão ficará registrado no seu nome.
         </div>
         <div class="timer-bar mt16">
@@ -362,107 +393,8 @@
     </div>
 
     <!-- ══════════════════════════════════
-         TELA 14 — DEVOLUÇÃO: INSERIR GALÃO
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-devolucao-inserir">
-      <div class="card" style="text-align:center">
-        <div class="rfid-animation">
-          <div class="rfid-ring"></div>
-          <div class="rfid-ring"></div>
-          <div class="rfid-ring"></div>
-          <div class="rfid-center">📡</div>
-        </div>
-        <div class="screen-title" style="font-size:32px">Inserir Galão</div>
-        <div class="feedback-msg">
-          Insira o galão na entrada superior.<br>
-          O sistema vai confirmar a devolução automaticamente.
-        </div>
-        <button class="btn btn-primary w100 mt16" onclick="simularLeituraRFID('devolucao')">
-          🔬 Simular leitura RFID
-        </button>
-        <button class="btn btn-ghost w100 mt8" onclick="goto('screen-menu-cliente')">← Cancelar</button>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         TELA 15 — DEVOLUÇÃO CONCLUÍDA
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-devolucao-ok">
-      <div class="card" style="text-align:center">
-        <div class="feedback-icon success">✅</div>
-        <div class="feedback-title" style="color:var(--verde)">Galão Devolvido!</div>
-        <div class="feedback-msg">
-          Comodato encerrado com sucesso.<br>
-          <span style="color:var(--azul-claro)">RFID: E200 3412 AB7F</span><br><br>
-          Obrigado por usar Água Fácil! 💧
-        </div>
-        <button class="btn btn-primary w100 mt24" onclick="encerrarSessao()">
-          Finalizar
-        </button>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         TELA 16 — SALDO / HISTÓRICO
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-saldo">
-      <div class="card card-wide">
-        <div class="screen-title" style="font-size:30px">Seu Histórico</div>
-
-        <div class="cliente-banner" style="margin-bottom:16px">
-          <div class="cliente-avatar">👤</div>
-          <div>
-            <div class="cliente-info-name" id="saldo-nome">Gefison</div>
-            <div class="cliente-info-sub">Desde 01/01/2026</div>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card stat-blue">
-            <div class="stat-value" style="color:var(--azul-neon)">1</div>
-            <div class="stat-label">Galões em uso</div>
-          </div>
-          <div class="stat-card stat-purple">
-            <div class="stat-value" style="color:var(--roxo-claro)">8</div>
-            <div class="stat-label">Total de trocas</div>
-          </div>
-          <div class="stat-card stat-green">
-            <div class="stat-value" style="color:var(--verde)">R$120</div>
-            <div class="stat-label">Gasto total</div>
-          </div>
-        </div>
-
-        <div class="section-label mb8">Últimas transações</div>
-        <div class="info-row"><span class="info-label">📅 09/03/2026 — Troca de galão</span><span class="info-value">R$ 15,00</span></div>
-        <div class="info-row"><span class="info-label">📅 24/02/2026 — Troca de galão</span><span class="info-value">R$ 15,00</span></div>
-        <div class="info-row"><span class="info-label">📅 08/02/2026 — Cadastro + Caução</span><span class="info-value">R$ 25,00</span></div>
-
-        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-menu-cliente')">← Voltar</button>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         TELA 17 — RFID INVÁLIDO (ERRO)
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-rfid-erro">
-      <div class="card" style="text-align:center">
-        <div class="feedback-icon error">⚠️</div>
-        <div class="feedback-title" style="color:var(--vermelho)" id="rfid-erro-titulo">Galão Não Reconhecido</div>
-        <div class="feedback-msg" id="rfid-erro-msg">
-          Não foi possível identificar este galão.<br>
-          Verifique se o galão é do Água Fácil e tente novamente.
-        </div>
-        <div class="btn-stack mt24">
-          <button class="btn btn-primary" id="rfid-erro-btn-retry" onclick="goto('screen-troca-inserir')">
-            🔄 Tentar novamente
-          </button>
-          <button class="btn btn-ghost" onclick="goto('screen-menu-cliente')">← Voltar ao menu</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         TELA 18 — TRANSAÇÃO CONCLUÍDA
+         S16 — CONCLUSÃO FINAL
+         Ponto de chegada de todos os fluxos
     ══════════════════════════════════ -->
     <div class="screen" id="screen-concluida">
       <div class="card" style="text-align:center">
@@ -470,7 +402,7 @@
         <div class="feedback-title" style="color:var(--verde)">Tudo Certo!</div>
         <div class="feedback-msg" id="concluida-msg">
           Sua transação foi concluída com sucesso.<br>
-          Obrigado por usar Água fácil! 💧
+          Obrigado por usar Água Fácil! 💧
         </div>
         <div class="timer-bar mt24">
           <div class="timer-fill" id="concluida-timer" style="width:100%"></div>
@@ -482,11 +414,107 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════════
+         S17 — HISTÓRICO / SALDO
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-historico">
+      <div class="card card-wide">
+        <div class="screen-title" style="font-size:30px">Seu Histórico</div>
+        <div class="cliente-banner" style="margin-bottom:16px">
+          <div class="cliente-avatar">👤</div>
+          <div>
+            <div class="cliente-info-name" id="historico-nome">—</div>
+            <div class="cliente-info-sub" id="historico-sub">—</div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card stat-blue">
+            <div class="stat-value" style="color:var(--azul-neon)" id="hist-galoes">0</div>
+            <div class="stat-label">Galões em uso</div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-value" style="color:var(--roxo-claro)" id="hist-trocas">0</div>
+            <div class="stat-label">Total de trocas</div>
+          </div>
+          <div class="stat-card stat-green">
+            <div class="stat-value" style="color:var(--verde)" id="hist-gasto">R$0</div>
+            <div class="stat-label">Gasto total</div>
+          </div>
+        </div>
+        <div class="section-label mb8">Últimas transações</div>
+        <div id="historico-lista">
+          <!-- Renderizado pelo JS -->
+        </div>
+        <button class="btn btn-ghost w100 mt16" onclick="goto('screen-menu-cliente')">← Voltar</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S18 — ERRO: RFID NÃO RECONHECIDO
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-rfid-erro">
+      <div class="card" style="text-align:center">
+        <div class="feedback-icon error">⚠️</div>
+        <div class="feedback-title" style="color:var(--vermelho)">Galão Não Reconhecido</div>
+        <div class="feedback-msg">
+          Não foi possível identificar este galão.<br>
+          Verifique se o galão é da Água Fácil e tente novamente.
+        </div>
+        <div class="btn-stack mt24">
+          <button class="btn btn-primary" onclick="goto('screen-rfid-inserir')">
+            🔄 Tentar novamente
+          </button>
+          <button class="btn btn-ghost" onclick="goto('screen-menu-cliente')">← Voltar ao menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S19 — ERRO: PAGAMENTO RECUSADO
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-pgto-recusado">
+      <div class="card" style="text-align:center">
+        <div class="feedback-icon error">❌</div>
+        <div class="feedback-title" style="color:var(--vermelho)">Pagamento Recusado</div>
+        <div class="feedback-msg">
+          Não foi possível processar o pagamento.<br>
+          Verifique seu cartão ou saldo e tente novamente.
+        </div>
+        <div class="btn-stack mt24">
+          <button class="btn btn-primary" onclick="goto('screen-pagamento')">
+            🔄 Tentar outro método
+          </button>
+          <button class="btn btn-ghost" onclick="goto('screen-menu-cliente')">← Voltar ao menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         S20 — ERRO: CPF NÃO ENCONTRADO
+    ══════════════════════════════════ -->
+    <div class="screen" id="screen-cpf-erro">
+      <div class="card" style="text-align:center">
+        <div class="feedback-icon error">🔍</div>
+        <div class="feedback-title" style="color:var(--vermelho)">CPF Não Encontrado</div>
+        <div class="feedback-msg">
+          Este CPF não está cadastrado em nosso sistema.<br>
+          Deseja fazer seu cadastro agora?
+        </div>
+        <div class="btn-stack mt24">
+          <button class="btn btn-primary" onclick="goto('screen-cad-cpf')">
+            ✨ Fazer cadastro
+          </button>
+          <button class="btn btn-ghost" onclick="goto('screen-cpf-existente')">
+            🔄 Tentar outro CPF
+          </button>
+          <button class="btn btn-ghost" onclick="goto('screen-idle')">← Voltar ao início</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /#app -->
 
-  <!-- TOAST DE NOTIFICAÇÕES -->
   <div id="toast"></div>
-
   <script src="script.js"></script>
 </body>
 </html>

@@ -216,9 +216,7 @@ html, body {
   box-shadow: 0 24px 80px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-.card-wide {
-  max-width: 860px;
-}
+.card-wide { max-width: 860px; }
 
 /* ══════════════════════════════════════════════════
    TIPOGRAFIA
@@ -340,6 +338,80 @@ html, body {
 .btn-row .btn { flex: 1; }
 
 /* ══════════════════════════════════════════════════
+   TELA IDLE — S01
+══════════════════════════════════════════════════ */
+.idle-visual {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.idle-drop {
+  font-size: 90px;
+  animation: idle-bob 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(56,189,248,.6));
+  display: block;
+}
+
+@keyframes idle-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-14px); }
+}
+
+.idle-glow {
+  width: 120px;
+  height: 16px;
+  background: radial-gradient(ellipse, rgba(56,189,248,.4), transparent);
+  margin: 0 auto;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: .4; transform: scaleX(.8); }
+  50%       { opacity: 1;  transform: scaleX(1.1); }
+}
+
+/* Card central da idle — sem borda, só texto */
+.idle-card {
+  text-align: center;
+}
+
+/* Texto pulsante "Toque para começar" */
+.idle-pulse {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 32px;
+  border: 1.5px solid rgba(56,189,248,.4);
+  border-radius: 40px;
+  font-size: 16px;
+  color: var(--azul-neon);
+  letter-spacing: 2px;
+  animation: idle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes idle-pulse {
+  0%, 100% { opacity: 1;  box-shadow: 0 0 0   rgba(56,189,248,.3); }
+  50%       { opacity: .6; box-shadow: 0 0 20px rgba(56,189,248,.5); }
+}
+
+/* ══════════════════════════════════════════════════
+   BARRA DE PROGRESSO — Cadastro
+══════════════════════════════════════════════════ */
+.progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--grad-destaque);
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+
+/* ══════════════════════════════════════════════════
    TECLADO NUMÉRICO
 ══════════════════════════════════════════════════ */
 .numpad-display {
@@ -422,7 +494,7 @@ html, body {
   border-color: var(--roxo-claro);
 }
 
-.numpad-key.zero  { grid-column: 2; }
+.numpad-key.zero { grid-column: 2; }
 
 .numpad-key.del {
   background: rgba(239,68,68,.12);
@@ -431,15 +503,6 @@ html, body {
 }
 
 .numpad-key.del:active { background: rgba(239,68,68,.35); }
-
-.numpad-key.ok {
-  background: var(--grad-botao);
-  border-color: var(--roxo-medio);
-  color: #fff;
-  font-size: 18px;
-}
-
-.numpad-key.ok:active { transform: scale(.94); }
 
 /* ══════════════════════════════════════════════════
    TECLADO ALFABÉTICO
@@ -502,7 +565,7 @@ html, body {
 .text-input-display .ph     { color: rgba(255,255,255,.3); font-weight: 400; font-size: 18px; }
 
 /* ══════════════════════════════════════════════════
-   MENU DE OPÇÕES
+   MENU DO CLIENTE — S09
 ══════════════════════════════════════════════════ */
 .menu-grid {
   display: grid;
@@ -547,6 +610,69 @@ html, body {
 
 .menu-card.highlight { border-color: rgba(56,189,248,.4); }
 .menu-card.highlight::before { background: linear-gradient(135deg, var(--roxo-claro), var(--azul-neon)); opacity: .06; }
+
+/* ══════════════════════════════════════════════════
+   SELETOR DE QUANTIDADE — S10
+══════════════════════════════════════════════════ */
+.qtd-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.qtd-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,92,246,.4);
+  background: rgba(255,255,255,.07);
+  color: var(--branco);
+  font-size: 36px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s ease;
+  font-family: 'Rajdhani', sans-serif;
+  line-height: 1;
+}
+
+.qtd-btn:active {
+  background: rgba(109,40,217,.4);
+  border-color: var(--roxo-claro);
+  transform: scale(.92);
+}
+
+.qtd-btn:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.qtd-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 100px;
+}
+
+#qtd-numero {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--azul-neon);
+  line-height: 1;
+  transition: all .15s ease;
+}
+
+.qtd-unit {
+  font-size: 13px;
+  color: var(--cinza);
+  letter-spacing: 1px;
+}
 
 /* ══════════════════════════════════════════════════
    FEEDBACK (ÍCONES DE STATUS)
@@ -608,7 +734,7 @@ html, body {
 }
 
 /* ══════════════════════════════════════════════════
-   INFO ROWS (TABELA DE DADOS)
+   INFO ROWS
 ══════════════════════════════════════════════════ */
 .info-row {
   display: flex;
@@ -625,11 +751,11 @@ html, body {
 .info-value.highlight { color: var(--azul-neon); }
 
 /* ══════════════════════════════════════════════════
-   PAGAMENTO
+   PAGAMENTO — S11
 ══════════════════════════════════════════════════ */
 .payment-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 14px;
 }
 
@@ -657,7 +783,7 @@ html, body {
 .payment-card-desc  { font-size: 12px; color: var(--cinza); text-align: center; }
 
 /* ══════════════════════════════════════════════════
-   TERMO DE COMODATO
+   TERMO DE COMODATO — S08
 ══════════════════════════════════════════════════ */
 .termo-box {
   background: rgba(0,0,0,.3);
@@ -709,7 +835,7 @@ html, body {
 .cliente-info-sub  { font-size: 13px; color: var(--azul-claro); }
 
 /* ══════════════════════════════════════════════════
-   ANIMAÇÃO RFID
+   ANIMAÇÃO RFID — S13
 ══════════════════════════════════════════════════ */
 .rfid-animation {
   width: 160px;
@@ -768,63 +894,6 @@ html, body {
 }
 
 /* ══════════════════════════════════════════════════
-   TOAST (NOTIFICAÇÕES TEMPORÁRIAS)
-══════════════════════════════════════════════════ */
-#toast {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: rgba(30,10,60,.95);
-  border: 1px solid rgba(139,92,246,.4);
-  border-radius: 14px;
-  padding: 14px 24px;
-  font-size: 15px;
-  color: var(--branco);
-  transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
-  z-index: 999;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 40px rgba(0,0,0,.5);
-}
-
-#toast.show {
-  transform: translateX(-50%) translateY(0);
-}
-
-/* ══════════════════════════════════════════════════
-   TELA INICIAL (IDLE)
-══════════════════════════════════════════════════ */
-.idle-visual {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.idle-drop {
-  font-size: 90px;
-  animation: idle-bob 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px rgba(56,189,248,.6));
-  display: block;
-}
-
-@keyframes idle-bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-14px); }
-}
-
-.idle-glow {
-  width: 120px;
-  height: 16px;
-  background: radial-gradient(ellipse, rgba(56,189,248,.4), transparent);
-  margin: 0 auto;
-  animation: glow-pulse 3s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% { opacity: .4; transform: scaleX(.8); }
-  50%       { opacity: 1;  transform: scaleX(1.1); }
-}
-
-/* ══════════════════════════════════════════════════
    VALOR EM DESTAQUE
 ══════════════════════════════════════════════════ */
 .valor-box {
@@ -852,10 +921,8 @@ html, body {
   line-height: 1;
 }
 
-.valor-cents { font-size: 28px; }
-
 /* ══════════════════════════════════════════════════
-   STATS (TELA DE SALDO)
+   STATS — Histórico S17
 ══════════════════════════════════════════════════ */
 .stats-grid {
   display: grid;
@@ -870,12 +937,35 @@ html, body {
   padding: 14px;
 }
 
-.stat-blue   { background: rgba(56,189,248,.1);   border: 1px solid rgba(56,189,248,.25); }
-.stat-purple { background: rgba(139,92,246,.1);   border: 1px solid rgba(139,92,246,.25); }
-.stat-green  { background: rgba(16,185,129,.1);   border: 1px solid rgba(16,185,129,.25); }
+.stat-blue   { background: rgba(56,189,248,.1);  border: 1px solid rgba(56,189,248,.25); }
+.stat-purple { background: rgba(139,92,246,.1);  border: 1px solid rgba(139,92,246,.25); }
+.stat-green  { background: rgba(16,185,129,.1);  border: 1px solid rgba(16,185,129,.25); }
 
 .stat-value { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; }
 .stat-label { font-size: 12px; color: var(--cinza); }
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(30,10,60,.95);
+  border: 1px solid rgba(139,92,246,.4);
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 15px;
+  color: var(--branco);
+  transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+  z-index: 999;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  white-space: nowrap;
+}
+
+#toast.show { transform: translateX(-50%) translateY(0); }
 
 /* ══════════════════════════════════════════════════
    UTILITÁRIOS
