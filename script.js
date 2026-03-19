@@ -278,6 +278,7 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
   let value = '';
 
   const linhas = [
+    ['1','2','3','4','5','6','7','8','9','0'],   // números
     ['Q','W','E','R','T','Y','U','I','O','P'],
     ['A','S','D','F','G','H','J','K','L'],
     ['Z','X','C','V','B','N','M']
@@ -305,6 +306,19 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
     container.appendChild(row);
   });
 
+  // Linha de símbolos úteis para email e nomes
+  const simbolRow = document.createElement('div');
+  simbolRow.className = 'keyboard-row';
+  ['@', '.', '-', '_'].forEach(s => {
+    const k = document.createElement('div');
+    k.className   = 'key';
+    k.textContent = s;
+    k.addEventListener('click', () => { value += s; updateDisplay(); });
+    simbolRow.appendChild(k);
+  });
+  container.appendChild(simbolRow);
+
+  // Linha final: Espaço + Backspace + OK
   const lastRow = document.createElement('div');
   lastRow.className = 'keyboard-row';
 
