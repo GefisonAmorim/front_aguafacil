@@ -64,13 +64,7 @@ const CLIENTES_MOCK = {
 // 2. NAVEGAÇÃO ENTRE TELAS
 // ══════════════════════════════════════════════════
 
-/**
- * Navega para a tela indicada pelo id.
- * Cancela timers de pagamento/porta antes de trocar.
- * Reinicia o timeout de sessão.
- * @param {string} id — ID da div.screen de destino
- */
-function goto(id) {
+ function goto(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 
@@ -79,6 +73,12 @@ function goto(id) {
     clearInterval(state.timer);
     state.timer = null;
   }
+
+  // Reseta os campos ao entrar nas telas de cadastro
+  if (id === 'screen-cad-cpf')   numpadCpfCad.reset();
+  if (id === 'screen-cad-nome')  teclaNome.reset();
+  if (id === 'screen-cad-email') teclaEmail.reset();
+  if (id === 'screen-cad-tel')   numpadTel.reset();
 
   // Reinicia o timeout de sessão em todas as telas, exceto idle
   if (id !== 'screen-idle') {
@@ -92,14 +92,14 @@ function goto(id) {
 // ══════════════════════════════════════════════════
 // 3. TIMEOUT DE SESSÃO — volta ao idle por inatividade
 // ══════════════════════════════════════════════════
-const TEMPO_SESSAO = 60; // segundos sem interação
 
 function resetarTimeoutSessao() {
   pararTimeoutSessao();
+  // Após 45s sem toque → mostra aviso "Você está aí?"
   state.timerSessao = setTimeout(() => {
-    showToast('⏱️ Sessão encerrada por inatividade');
-    encerrarSessao();
-  }, TEMPO_SESSAO * 1000);
+    goto('screen-inatividade');
+    iniciarTimerInatividade();
+  }, 45 * 1000);
 }
 
 function pararTimeoutSessao() {
@@ -109,10 +109,41 @@ function pararTimeoutSessao() {
   }
 }
 
+ 
+function iniciarTimerInatividade() {
+  let secs = 15;
+  const fill  = document.getElementById('inatividade-timer');
+  const count = document.getElementById('inatividade-count');
+
+  fill.style.width  = '100%';
+  count.textContent = secs;
+
+  state.timer = setInterval(() => {
+    secs--;
+    fill.style.width  = (secs / 15 * 100) + '%';
+    count.textContent = secs;
+
+    if (secs <= 0) {
+      clearInterval(state.timer);
+      state.timer = null;
+      encerrarSessao();
+    }
+  }, 1000);
+}
+
+/**
+ * Botão "Continuar" na tela de inatividade.
+ * Volta para o menu e reinicia o timeout.
+ */
+function continuarSessao() {
+  goto('screen-menu-cliente');
+  resetarTimeoutSessao();
+}
+
 // Qualquer toque na tela reinicia o timeout
 document.addEventListener('click', () => {
   const telaAtiva = document.querySelector('.screen.active');
-  if (telaAtiva && telaAtiva.id !== 'screen-idle') {
+  if (telaAtiva && telaAtiva.id !== 'screen-idle' && telaAtiva.id !== 'screen-inatividade') {
     resetarTimeoutSessao();
   }
 });
@@ -369,19 +400,14 @@ buildNumpad(
   'cpf-existente-display',
   11,
   function onCPFExistente(cpf) {
-    // TODO: substituir por GET /api/v1/clientes/{cpf}
     const cliente = CLIENTES_MOCK[cpf];
-
     if (!cliente) {
       goto('screen-cpf-erro');
       return;
     }
-
-    // Carrega dados do cliente no estado
     state.clienteCPF    = cpf;
     state.clienteNome   = cliente.nome;
     state.clienteGaloes = cliente.galoes;
-
     showToast('✅ ' + cliente.nome + ', bem-vindo!');
     renderizarMenuCliente();
     goto('screen-menu-cliente');
@@ -390,12 +416,11 @@ buildNumpad(
 );
 
 // ── S04: CPF novo cadastro ──────────────────────
-buildNumpad(
+const numpadCpfCad = buildNumpad(
   'numpad-cpf-cad',
   'cpf-cad-display',
   11,
   function onCPFNovo(cpf) {
-    // TODO: GET /api/v1/clientes/{cpf} para verificar duplicidade
     if (CLIENTES_MOCK[cpf]) {
       showToast('❌ CPF já cadastrado — selecione "Já sou cliente"');
       return;
@@ -407,7 +432,7 @@ buildNumpad(
 );
 
 // ── S07: Telefone ───────────────────────────────
-buildNumpad(
+const numpadTel = buildNumpad(
   'numpad-tel',
   'tel-display',
   11,
@@ -419,7 +444,7 @@ buildNumpad(
 );
 
 // ── S05: Nome ───────────────────────────────────
-buildKeyboard(
+const teclaNome = buildKeyboard(
   'keyboard-nome',
   'nome-display',
   'Digite seu nome completo...',
@@ -431,12 +456,11 @@ buildKeyboard(
 );
 
 // ── S06: Email ──────────────────────────────────
-buildKeyboard(
+const teclaEmail = buildKeyboard(
   'keyboard-email',
   'email-display',
   'exemplo@email.com...',
   function onEmail(email) {
-    // Validação simples de email
     if (!email.includes('@') || !email.includes('.')) {
       showToast('⚠️ Digite um e-mail válido');
       return;
@@ -446,7 +470,6 @@ buildKeyboard(
     goto('screen-cad-tel');
   }
 );
-
 
 // ══════════════════════════════════════════════════
 // 11. MENU DO CLIENTE — renderização dinâmica
@@ -539,7 +562,7 @@ function abrirSelecaoQuantidade(fluxo) {
       valorLabel:  'Total a pagar',
       btnIcone:    '💳',
       btnTexto:    'Avançar para pagamento',
-      maximo:      5,
+      maximo:      2,
       mostraInfo:  false,
     },
     troca: {
@@ -620,26 +643,28 @@ function atualizarValorQuantidade() {
   document.getElementById('qtd-total').textContent = total;
 }
 
-/**
- * Avança para o próximo passo conforme o fluxo.
- */
-function confirmarQuantidade() {
-  if (state.fluxo === 'compra' || state.fluxo === 'troca') {
-    // Compra e troca vão para pagamento
-    document.getElementById('pgto-label').textContent =
-      state.fluxo === 'compra' ? 'Compra' : 'Troca';
-    document.getElementById('pgto-total').textContent =
-      formatBRL(state.quantidade * state.precoUnitario);
-    goto('screen-pagamento');
+if (state.fluxo === 'compra' || state.fluxo === 'troca') {
+  // Monta o resumo
+  const caucao      = state.clienteGaloes === 0 ? 10 : 0;
+  const totalRecarga = state.quantidade * state.precoUnitario;
+  const total        = totalRecarga + caucao;
 
-  } else if (state.fluxo === 'devolucao') {
-    // Devolução vai direto para RFID
-    document.getElementById('rfid-titulo').textContent = 'Insira o Galão Vazio';
-    document.getElementById('rfid-msg').textContent =
-      `Insira ${state.quantidade} galão(ões) vazio(s) na entrada indicada.\nO sistema identificará automaticamente pelo RFID.`;
-    goto('screen-rfid-inserir');
-  }
-}
+  document.getElementById('resumo-label').textContent =
+    state.fluxo === 'compra' ? 'Resumo da compra' : 'Resumo da troca';
+  document.getElementById('resumo-quantidade').textContent =
+    state.quantidade + ' galão(ões)';
+  document.getElementById('resumo-recarga').textContent =
+    'R$ ' + formatBRL(totalRecarga);
+  document.getElementById('resumo-total').textContent =
+    formatBRL(total);
+  document.getElementById('pgto-total').textContent =
+    formatBRL(total);
+
+  // Mostra caução só para cliente novo (0 galões)
+  document.getElementById('resumo-row-caucao').style.display =
+    state.clienteGaloes === 0 ? 'flex' : 'none';
+
+  goto('screen-resumo-compra');
 
 
 // ══════════════════════════════════════════════════
@@ -666,9 +691,8 @@ function concluirCadastro() {
   showToast('🎉 Cadastro realizado! Bem-vindo, ' + state.nome + '!');
 
   // Novo cliente vai direto para compra
-  state.fluxo    = 'compra';
-  state.quantidade = 1;
-  abrirSelecaoQuantidade('compra');
+  renderizarMenuCliente();
+  goto('screen-menu-cliente');
 }
 
 
@@ -692,7 +716,7 @@ function processarPagamento(metodo) {
     mensagens[metodo] || 'Realize o pagamento na maquininha';
 
   // TODO: POST /api/v1/pagamentos com { valor, metodo, fluxo }
-  goto('screen-aguardando-pagamento');
+  goto('screen-pgto-recusado');
   startPaymentTimer();
 }
 
@@ -813,14 +837,26 @@ function confirmarRFID() {
  * TODO: enviar comando MQTT ao ESP32 para abrir porta física.
  */
 function abrirPorta() {
-  // Número de porta simulado (1 a 6)
-  const numPorta = Math.floor(Math.random() * 6) + 1;
+  // Gera números de portas aleatórios (1 a 9)
+  const porta1 = Math.floor(Math.random() * 9) + 1;
+  let porta2   = Math.floor(Math.random() * 9) + 1;
 
-  document.getElementById('porta-numero').textContent = 'Porta Nº ' + numPorta;
-  document.getElementById('porta-msg').textContent =
-    state.fluxo === 'troca'
-      ? `Retire ${state.quantidade} galão(ões) cheio(s).`
-      : `Retire ${state.quantidade} galão(ões) cheio(s).`;
+  // Garante que as duas portas sejam diferentes
+  while (porta2 === porta1) 
+    porta2 = Math.floor(Math.random() * 9) + 1;
+  }
+
+  // Monta o texto conforme a quantidade
+  const textoPorta = state.quantidade === 2
+    ? `Portas Nº ${porta1} e Nº ${porta2}`
+    : `Porta Nº ${porta1}`;
+
+  const textoMsg = state.quantidade === 2
+    ? `Retire seus ${state.quantidade} galões cheios.`
+    : `Retire seu galão cheio.`;
+
+  document.getElementById('porta-numero').textContent = textoPorta;
+  document.getElementById('porta-msg').textContent    = textoMsg;
 
   goto('screen-porta-aberta');
   startPortaTimer();
@@ -850,7 +886,20 @@ function startPortaTimer() {
     }
   }, 1000);
 }
-
+/**
+ * Cliente confirma que retirou o produto.
+ * Cancela o timer e vai para conclusão.
+ */
+function confirmarRetirada() {
+    if (state.timer) {
+    clearInterval(state.timer);
+    state.timer = null;
+    }
+  // TODO: enviar comando MQTT para fechar porta
+  document.getElementById('concluida-msg').textContent =
+    'Produto retirado com sucesso.\nObrigado por usar Água Fácil! 💧';
+  encerrarComSucesso();
+}
 
 // ══════════════════════════════════════════════════
 // 17. HISTÓRICO
@@ -865,7 +914,7 @@ function renderizarHistorico() {
   document.getElementById('historico-sub').textContent  = 'Cliente desde ' + cliente.desde;
   document.getElementById('hist-galoes').textContent    = cliente.galoes;
   document.getElementById('hist-trocas').textContent    = cliente.trocas;
-  document.getElementById('hist-gasto').textContent     = 'R$' + cliente.gasto;
+  
 
   // Transações simuladas
   const lista = document.getElementById('historico-lista');
