@@ -1,3 +1,4 @@
+
 /* ══════════════════════════════════════════════════
    VARIÁVEIS DE COR E TEMA — Azul Água Clean
    Otimizado para totem 15" vertical (768x1024px)
@@ -12,11 +13,11 @@
   --agua-brilho:    #48cae4;
   --agua-suave:     #90e0ef;
 
-  /* Neutros */
-  --branco:         #f0faff;
-  --cinza-claro:    #caf0f8;
-  --cinza:          #7cb9d4;
-  --cinza-escuro:   #2d6a8a;
+  /* Neutros — textos escuros para fundo claro */
+  --branco:         #0a1f3d;
+  --cinza-claro:    #0d3060;
+  --cinza:          #1a4a7a;
+  --cinza-escuro:   #041c2e;
 
   /* Feedback */
   --verde:          #0abe8c;
@@ -26,10 +27,10 @@
   --amarelo:        #fbbf24;
 
   /* Gradientes */
-  --grad-fundo:     linear-gradient(180deg, var(--agua-fundo) 0%, var(--agua-escuro) 100%);
+  --grad-fundo:     linear-gradient(180deg, #f0f8ff 0%, #c8e6f5 100%);
   --grad-botao:     linear-gradient(135deg, var(--agua-claro) 0%, var(--agua-neon) 100%);
   --grad-destaque:  linear-gradient(135deg, var(--agua-brilho) 0%, var(--agua-suave) 100%);
-  --grad-card:      linear-gradient(135deg, rgba(6,49,71,.8) 0%, rgba(4,28,46,.9) 100%);
+  --grad-card:      linear-gradient(135deg, rgba(255,255,255,.7) 0%, rgba(200,230,245,.8) 100%);
 }
 
 /* ══════════════════════════════════════════════════
@@ -237,10 +238,8 @@ html, body {
   font-weight: 700;
   text-align: center;
   margin-bottom: 10px;
-  background: var(--grad-destaque);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0a1f3d;
+  -webkit-text-fill-color: #0a1f3d;
 }
 
 .screen-subtitle {
@@ -296,24 +295,25 @@ html, body {
 .btn:active        { transform: scale(.975); }
 
 .btn-primary {
-  background: var(--grad-botao);
-  color: #fff;
-  box-shadow: 0 8px 32px rgba(0,180,216,.35), inset 0 1px 0 rgba(255,255,255,.15);
+  background: #0a1f3d;
+  color: #ffffff;
+  box-shadow: 0 8px 32px rgba(10,31,61,.25);
+  justify-content: center;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 12px 40px rgba(0,180,216,.55);
+  box-shadow: 0 12px 40px rgba(10,31,61,.4);
 }
 
 .btn-secondary {
-  background: rgba(0,180,216,.08);
-  border: 2px solid rgba(0,180,216,.35);
-  color: var(--branco);
+  background: transparent;
+  border: 2px solid #0a1f3d;
+  color: #0a1f3d;
+  justify-content: center;
 }
 
 .btn-secondary:hover {
-  background: rgba(0,180,216,.15);
-  border-color: var(--agua-neon);
+  background: rgba(10,31,61,.08);
 }
 
 .btn-success {
@@ -330,26 +330,36 @@ html, body {
 
 .btn-ghost {
   background: transparent;
-  border: 2px solid rgba(0,180,216,.25);
-  color: var(--agua-suave);
+  border: 2px solid rgba(10,31,61,.3);
+  color: #1a4a7a;
   font-size: 18px;
   min-height: 64px;
   padding: 14px 24px;
+  justify-content: center;
 }
 
 .btn-ghost:hover {
-  border-color: var(--agua-neon);
-  background: rgba(0,180,216,.06);
+  border-color: #0a1f3d;
+  background: rgba(10,31,61,.06);
 }
 
 .btn-icon    { font-size: 30px; flex-shrink: 0; }
-.btn-content { display: flex; flex-direction: column; align-items: flex-start; }
+.btn-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .btn-label   { font-size: 22px; font-weight: 700; }
-.btn-desc    { font-size: 14px; font-weight: 400; color: rgba(255,255,255,.6); margin-top: 3px; }
+.btn-desc-primary  { font-size: 14px; font-weight: 400; color: rgba(255,255,255,.65); margin-top: 3px; }
+.btn-desc-secondary { font-size: 14px; font-weight: 400; color: rgba(10,31,61,.6); margin-top: 3px; }
 .btn-stack   { display: flex; flex-direction: column; gap: 16px; width: 100%; }
 .btn-row     { display: flex; gap: 16px; width: 100%; }
 .btn-row .btn { flex: 1; }
-
+.btn-desc { 
+  font-size: 13px; 
+  font-weight: 400; 
+  color: rgba(255,255,255,.65); 
+  margin-top: 3px; 
+}
+.btn-secondary .btn-desc { 
+  color: rgba(10,31,61,.55); 
+}
 /* ══════════════════════════════════════════════════
    TELA IDLE — S01
 ══════════════════════════════════════════════════ */
@@ -389,10 +399,11 @@ html, body {
   display: inline-block;
   margin-top: 32px;
   padding: 16px 48px;
-  border: 2px solid rgba(0,180,216,.5);
+  border: 2px solid #0a1f3d;
   border-radius: 50px;
   font-size: 20px;
-  color: var(--agua-neon);
+  color: #ffffff;
+  background: #0a1f3d;
   letter-spacing: 3px;
   animation: idle-pulse 2s ease-in-out infinite;
 }
@@ -997,4 +1008,24 @@ html, body {
   object-fit: contain;
   filter: drop-shadow(0 0 40px rgba(0,180,216,.5));
   animation: idle-bob 3s ease-in-out infinite;
-}/* cache bust */
+  mix-blend-mode: multiply;
+}
+
+.idle-marca {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0d3060;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.idle-slogan {
+  font-size: 17px;
+  color: #1a4a7a;
+  font-style: italic;
+  letter-spacing: .5px;
+  margin-top: 8px;
+  margin-bottom: 24px;
+}

@@ -75,6 +75,7 @@ const CLIENTES_MOCK = {
   }
 
   // Reseta os campos ao entrar nas telas de cadastro
+  if (id === 'screen-cpf-existente') numpadCpfExistente.reset();
   if (id === 'screen-cad-cpf')   numpadCpfCad.reset();
   if (id === 'screen-cad-nome')  teclaNome.reset();
   if (id === 'screen-cad-email') teclaEmail.reset();
@@ -395,7 +396,7 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
 // ══════════════════════════════════════════════════
 
 // ── S03: CPF cliente existente ──────────────────
-buildNumpad(
+const numpadCpfExistente = buildNumpad(
   'numpad-cpf-existente',
   'cpf-existente-display',
   11,
@@ -414,7 +415,6 @@ buildNumpad(
   },
   formatCPF
 );
-
 // ── S04: CPF novo cadastro ──────────────────────
 const numpadCpfCad = buildNumpad(
   'numpad-cpf-cad',

@@ -14,12 +14,12 @@
 
   <div id="app">
 
-    <!-- ══════════════════════════════════
-         HEADER — fixo em todas as telas
-    ══════════════════════════════════ -->
+    <!-- HEADER -->
     <div class="header">
       <div class="header-logo">
-        <div class="logo-icon">💧</div>
+        <div class="logo-icon">
+          <img src="logo.png" alt="Água Leve Mogiana" style="width:40px;height:40px;object-fit:contain;mix-blend-mode:screen;">
+        </div>
         <div>
           <div class="logo-text">Água Fácil</div>
           <div class="logo-sub">Sistema de Distribuição</div>
@@ -34,22 +34,19 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════
-         S01 — IDLE
-         Toque em qualquer lugar para iniciar
-    ══════════════════════════════════ -->
+    <!-- S01 — IDLE -->
     <div class="screen active" id="screen-idle" onclick="goto('screen-identificacao')">
       <div class="idle-visual">
         <img src="logo.png" alt="Água Leve Mogiana" class="idle-logo">
         <div class="idle-glow"></div>
       </div>
       <div class="idle-card">
-        <div class="screen-title">Água Fácil</div>
-        <div class="screen-subtitle">Toque em qualquer lugar para iniciar</div>
+        <div class="idle-marca">Água Leve Mogiana</div>
+        <div class="screen-title">Bem-vindo ao Água Fácil</div>
+        <div class="idle-slogan">"Desde 1954, agora ainda mais perto de você"</div>
         <div class="idle-pulse">● Toque para começar</div>
-      </div>
     </div>
-
+    </div>
     <!-- ══════════════════════════════════
          S02 — IDENTIFICAÇÃO
          Já tem cadastro ou é novo cliente?
@@ -60,14 +57,14 @@
         <div class="screen-subtitle">Como deseja continuar?</div>
         <div class="btn-stack">
           <button class="btn btn-primary" onclick="goto('screen-cpf-existente')">
-            <span class="btn-icon">👤</span>
+            <span class="btn-icon"></span>
             <div class="btn-content">
               <span class="btn-label">Já sou cliente</span>
-              <span class="btn-desc">Tenho cadastro — quero comprar, trocar ou devolver</span>
+              <span class="btn-desc">Tenho cadastro — quero comprar</span>
             </div>
           </button>
           <button class="btn btn-secondary" onclick="goto('screen-cad-cpf')">
-            <span class="btn-icon">✨</span>
+            <span class="btn-icon"></span>
             <div class="btn-content">
               <span class="btn-label">Primeiro acesso</span>
               <span class="btn-desc">Ainda não tenho cadastro</span>
