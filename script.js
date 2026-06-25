@@ -26,62 +26,54 @@
 // 1. ESTADO GLOBAL
 // ══════════════════════════════════════════════════
 const state = {
-  // Dados do cliente logado
   clienteNome:    '',
   clienteCPF:     '',
-  clienteGaloes:  0,       // Galões em comodato com o cliente
-
-  // Dados em preenchimento no cadastro
+  clienteGaloes:  0,
   cpf:            '',
   nome:           '',
   email:          '',
   telefone:       '',
-
-  // Controle do fluxo atual
-  // 'compra' | 'troca' | 'devolucao'
   fluxo:          '',
-
-  // Quantidade selecionada na tela S10
   quantidade:     1,
-
-  // Preço unitário da recarga (em reais)
+  galoesLidos:    0,  
   precoUnitario:  15,
-
-  // Timers ativos
+  _qtdMaximo:     2,
   timer:          null,
   timerSessao:    null,
 };
 
-// Dados simulados de clientes — substituir por chamada à API
+// Dados simulados — substituir por chamada à API
 const CLIENTES_MOCK = {
-  '07057241313': { nome: 'Gefison Amorim',  galoes: 2, trocas: 8,  gasto: 145, desde: '08/02/2026' },
-  '11122233344': { nome: 'Victor Melo',     galoes: 1, trocas: 3,  gasto: 70,  desde: '01/03/2026' },
-  '00000000000': { nome: 'Cliente Teste',   galoes: 0, trocas: 0,  gasto: 0,   desde: '18/03/2026' },
+  '07057241313': { nome: 'Gefison Amorim', galoes: 2, trocas: 8,  gasto: 145, desde: '08/02/2026' },
+  '11122233344': { nome: 'Victor Melo',    galoes: 1, trocas: 3,  gasto: 70,  desde: '01/03/2026' },
+  '00000000000': { nome: 'Cliente Teste',  galoes: 0, trocas: 0,  gasto: 0,   desde: '18/03/2026' },
 };
-
+const state = {
+  // ... existing fields ...
+  galoesLidos: 0,  // contador de galões lidos pelo RFID
+};
 
 // ══════════════════════════════════════════════════
 // 2. NAVEGAÇÃO ENTRE TELAS
 // ══════════════════════════════════════════════════
-
- function goto(id) {
+function goto(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const tela = document.getElementById(id);
+  if (!tela) { console.error('Tela não encontrada:', id); return; }
+  tela.classList.add('active');
 
-  // Cancela timer de pagamento ou porta (não o de sessão)
   if (state.timer) {
     clearInterval(state.timer);
     state.timer = null;
   }
 
-  // Reseta os campos ao entrar nas telas de cadastro
+  // Reseta campos ao entrar nas telas de cadastro
   if (id === 'screen-cpf-existente') numpadCpfExistente.reset();
-  if (id === 'screen-cad-cpf')   numpadCpfCad.reset();
-  if (id === 'screen-cad-nome')  teclaNome.reset();
-  if (id === 'screen-cad-email') teclaEmail.reset();
-  if (id === 'screen-cad-tel')   numpadTel.reset();
+  if (id === 'screen-cad-cpf')       numpadCpfCad.reset();
+  if (id === 'screen-cad-nome')      teclaNome.reset();
+  if (id === 'screen-cad-email')     teclaEmail.reset();
+  if (id === 'screen-cad-tel')       numpadTel.reset();
 
-  // Reinicia o timeout de sessão em todas as telas, exceto idle
   if (id !== 'screen-idle') {
     resetarTimeoutSessao();
   } else {
@@ -91,12 +83,10 @@ const CLIENTES_MOCK = {
 
 
 // ══════════════════════════════════════════════════
-// 3. TIMEOUT DE SESSÃO — volta ao idle por inatividade
+// 3. TIMEOUT DE SESSÃO
 // ══════════════════════════════════════════════════
-
 function resetarTimeoutSessao() {
   pararTimeoutSessao();
-  // Após 45s sem toque → mostra aviso "Você está aí?"
   state.timerSessao = setTimeout(() => {
     goto('screen-inatividade');
     iniciarTimerInatividade();
@@ -110,7 +100,6 @@ function pararTimeoutSessao() {
   }
 }
 
- 
 function iniciarTimerInatividade() {
   let secs = 15;
   const fill  = document.getElementById('inatividade-timer');
@@ -123,7 +112,6 @@ function iniciarTimerInatividade() {
     secs--;
     fill.style.width  = (secs / 15 * 100) + '%';
     count.textContent = secs;
-
     if (secs <= 0) {
       clearInterval(state.timer);
       state.timer = null;
@@ -132,16 +120,11 @@ function iniciarTimerInatividade() {
   }, 1000);
 }
 
-/**
- * Botão "Continuar" na tela de inatividade.
- * Volta para o menu e reinicia o timeout.
- */
 function continuarSessao() {
   goto('screen-menu-cliente');
   resetarTimeoutSessao();
 }
 
-// Qualquer toque na tela reinicia o timeout
 document.addEventListener('click', () => {
   const telaAtiva = document.querySelector('.screen.active');
   if (telaAtiva && telaAtiva.id !== 'screen-idle' && telaAtiva.id !== 'screen-inatividade') {
@@ -151,7 +134,7 @@ document.addEventListener('click', () => {
 
 
 // ══════════════════════════════════════════════════
-// 4. RELÓGIO NO HEADER
+// 4. RELÓGIO
 // ══════════════════════════════════════════════════
 function updateClock() {
   const now = new Date();
@@ -164,14 +147,8 @@ setInterval(updateClock, 10000);
 
 
 // ══════════════════════════════════════════════════
-// 5. TOAST — NOTIFICAÇÕES TEMPORÁRIAS
+// 5. TOAST
 // ══════════════════════════════════════════════════
-
-/**
- * Exibe uma mensagem flutuante temporária.
- * @param {string} msg — Texto da mensagem
- * @param {number} dur — Duração em ms (padrão 2500)
- */
 function showToast(msg, dur = 2500) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -181,7 +158,7 @@ function showToast(msg, dur = 2500) {
 
 
 // ══════════════════════════════════════════════════
-// 6. PARTÍCULAS DE FUNDO
+// 6. PARTÍCULAS
 // ══════════════════════════════════════════════════
 (function criarParticulas() {
   const container = document.getElementById('particles');
@@ -204,7 +181,6 @@ function showToast(msg, dur = 2500) {
 // ══════════════════════════════════════════════════
 // 7. FORMATADORES
 // ══════════════════════════════════════════════════
-
 function formatCPF(v) {
   if (v.length <= 3) return v;
   if (v.length <= 6) return v.slice(0,3) + '.' + v.slice(3);
@@ -226,15 +202,6 @@ function formatBRL(valor) {
 // ══════════════════════════════════════════════════
 // 8. FÁBRICA DE NUMPAD
 // ══════════════════════════════════════════════════
-
-/**
- * Cria um numpad interativo.
- * @param {string}   containerId
- * @param {string}   displayId
- * @param {number}   maxLen
- * @param {Function} onComplete  — chamado ao preencher maxLen dígitos
- * @param {Function} [formatFn]  — formatação do display
- */
 function buildNumpad(containerId, displayId, maxLen, onComplete, formatFn) {
   const container = document.getElementById(containerId);
   const display   = document.getElementById(displayId);
@@ -296,21 +263,13 @@ function buildNumpad(containerId, displayId, maxLen, onComplete, formatFn) {
 // ══════════════════════════════════════════════════
 // 9. FÁBRICA DE TECLADO ALFABÉTICO
 // ══════════════════════════════════════════════════
-
-/**
- * Cria um teclado QWERTY touch-friendly.
- * @param {string}   containerId
- * @param {string}   displayId
- * @param {string}   placeholder
- * @param {Function} onConfirm   — chamado com o texto confirmado
- */
 function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
   const container = document.getElementById(containerId);
   const display   = document.getElementById(displayId);
   let value = '';
 
   const linhas = [
-    ['1','2','3','4','5','6','7','8','9','0'],   // números
+    ['1','2','3','4','5','6','7','8','9','0'],
     ['Q','W','E','R','T','Y','U','I','O','P'],
     ['A','S','D','F','G','H','J','K','L'],
     ['Z','X','C','V','B','N','M']
@@ -338,7 +297,6 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
     container.appendChild(row);
   });
 
-  // Linha de símbolos úteis para email e nomes
   const simbolRow = document.createElement('div');
   simbolRow.className = 'keyboard-row';
   ['@', '.', '-', '_'].forEach(s => {
@@ -350,7 +308,6 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
   });
   container.appendChild(simbolRow);
 
-  // Linha final: Espaço + Backspace + OK
   const lastRow = document.createElement('div');
   lastRow.className = 'keyboard-row';
 
@@ -395,7 +352,6 @@ function buildKeyboard(containerId, displayId, placeholder, onConfirm) {
 // 10. INICIALIZAÇÃO DOS TECLADOS
 // ══════════════════════════════════════════════════
 
-// ── S03: CPF cliente existente ──────────────────
 const numpadCpfExistente = buildNumpad(
   'numpad-cpf-existente',
   'cpf-existente-display',
@@ -415,7 +371,7 @@ const numpadCpfExistente = buildNumpad(
   },
   formatCPF
 );
-// ── S04: CPF novo cadastro ──────────────────────
+
 const numpadCpfCad = buildNumpad(
   'numpad-cpf-cad',
   'cpf-cad-display',
@@ -431,7 +387,6 @@ const numpadCpfCad = buildNumpad(
   formatCPF
 );
 
-// ── S07: Telefone ───────────────────────────────
 const numpadTel = buildNumpad(
   'numpad-tel',
   'tel-display',
@@ -443,7 +398,6 @@ const numpadTel = buildNumpad(
   formatTEL
 );
 
-// ── S05: Nome ───────────────────────────────────
 const teclaNome = buildKeyboard(
   'keyboard-nome',
   'nome-display',
@@ -455,7 +409,6 @@ const teclaNome = buildKeyboard(
   }
 );
 
-// ── S06: Email ──────────────────────────────────
 const teclaEmail = buildKeyboard(
   'keyboard-email',
   'email-display',
@@ -472,14 +425,8 @@ const teclaEmail = buildKeyboard(
 );
 
 // ══════════════════════════════════════════════════
-// 11. MENU DO CLIENTE — renderização dinâmica
+// 11. MENU DO CLIENTE
 // ══════════════════════════════════════════════════
-
-/**
- * Monta o menu conforme a quantidade de galões do cliente.
- * 0 galões → só Comprar e Histórico
- * 1+ galões → Comprar, Trocar, Devolver e Histórico
- */
 function renderizarMenuCliente() {
   const cpfMascarado = '•••.•••.•••-' + state.clienteCPF.slice(-2);
   const subTexto = state.clienteGaloes === 0
@@ -487,34 +434,28 @@ function renderizarMenuCliente() {
     : `${state.clienteGaloes} galão(ões) em comodato`;
 
   document.getElementById('cliente-nome-display').textContent = state.clienteNome;
-  document.getElementById('cliente-sub-display').textContent =
+  document.getElementById('cliente-sub-display').textContent  =
     cpfMascarado + '  |  ' + subTexto;
 
   const grid = document.getElementById('menu-opcoes');
   grid.innerHTML = '';
 
-  // Opção: Comprar (sempre disponível)
-  grid.innerHTML += criarCardMenu('🛒', 'Comprar Água', 'Adquirir galão(ões) novo(s)', 'compra');
+  // Botão único — detecta troca ou compra automaticamente
+  grid.innerHTML += criarCardMenu('💧', 'Pegar Galão',
+    state.clienteGaloes > 0 ? 'Trocar vazio ou comprar mais' : 'Adquirir seu primeiro galão',
+    'pegar');
 
-  // Opções: Trocar e Devolver (só se tiver galões)
+  // Devolução só aparece se tiver galões
   if (state.clienteGaloes > 0) {
-    grid.innerHTML += criarCardMenu('🔄', 'Trocar Galão', 'Devolva o vazio e pegue um cheio', 'troca');
     grid.innerHTML += criarCardMenu('↩️', 'Devolver Galão', 'Encerrar comodato', 'devolucao');
   }
 
-  // Opção: Histórico (sempre disponível)
+  // Histórico sempre disponível
   grid.innerHTML += criarCardMenu('📊', 'Histórico', 'Ver galões e transações', 'historico');
 }
 
-/**
- * Retorna o HTML de um card do menu.
- * @param {string} icon
- * @param {string} titulo
- * @param {string} desc
- * @param {string} acao — 'compra' | 'troca' | 'devolucao' | 'historico'
- */
 function criarCardMenu(icon, titulo, desc, acao) {
-  const highlight = acao === 'troca' ? ' highlight' : '';
+  const highlight = acao === 'pegar' ? ' highlight' : '';
   return `
     <div class="menu-card${highlight}" onclick="selecionarFluxo('${acao}')">
       <div class="menu-card-icon">${icon}</div>
@@ -524,12 +465,8 @@ function criarCardMenu(icon, titulo, desc, acao) {
   `;
 }
 
-/**
- * Direciona o cliente para o fluxo correto ao clicar no menu.
- * @param {string} fluxo — 'compra' | 'troca' | 'devolucao' | 'historico'
- */
 function selecionarFluxo(fluxo) {
-  state.fluxo    = fluxo;
+  state.fluxo      = fluxo;
   state.quantidade = 1;
 
   if (fluxo === 'historico') {
@@ -538,70 +475,110 @@ function selecionarFluxo(fluxo) {
     return;
   }
 
-  abrirSelecaoQuantidade(fluxo);
+  if (fluxo === 'devolucao') {
+    abrirSelecaoQuantidade('devolucao');
+    return;
+  }
+
+  if (fluxo === 'pegar') {
+    abrirPegarGalao();
+    return;
+  }
 }
 
+function abrirPegarGalao() {
+  document.getElementById('pegar-nome').textContent = state.clienteNome;
+  document.getElementById('pegar-sub').textContent  =
+    state.clienteGaloes > 0
+      ? `${state.clienteGaloes} galão(ões) em comodato`
+      : 'Nenhum galão em comodato';
 
-// ══════════════════════════════════════════════════
-// 12. SELEÇÃO DE QUANTIDADE — tela S10 unificada
-// ══════════════════════════════════════════════════
+  const temGaloes = state.clienteGaloes > 0;
+  document.getElementById('pegar-cenario-troca').style.display  = temGaloes ? 'block' : 'none';
+  document.getElementById('pegar-cenario-compra').style.display = temGaloes ? 'none'  : 'block';
 
-/**
- * Configura e abre a tela de seleção de quantidade.
- * O contexto (compra, troca ou devolução) muda os textos e limites.
- * @param {string} fluxo
- */
-function abrirSelecaoQuantidade(fluxo) {
+  goto('screen-pegar-galao');
+}
+
+function iniciarTroca() {
+  state.fluxo      = 'troca';
   state.quantidade = 1;
+  // Troca: primeiro seleciona quantidade, depois insere galões
+  abrirSelecaoQuantidade('troca');
+}
+
+function iniciarCompra() {
+  state.fluxo      = 'compra';
+  state.quantidade = 1;
+  abrirSelecaoQuantidade('compra');
+}
+
+function iniciarCompraAposErro() {
+  // Cliente veio da troca mas galão não foi reconhecido
+  // Oferece compra de galão novo sem voltar ao menu
+  state.fluxo      = 'compra';
+  state.quantidade = 1;
+  abrirSelecaoQuantidade('compra');
+}
+// ══════════════════════════════════════════════════
+// 12. SELEÇÃO DE QUANTIDADE
+// BUG CORRIGIDO: bloco if solto fora de função removido
+// BUG CORRIGIDO: confirmarQuantidade agora é uma função
+// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// 12. SELEÇÃO DE QUANTIDADE
+// ══════════════════════════════════════════════════
+function abrirSelecaoQuantidade(fluxo) {
+  state.quantidade  = 1;
+  state.galoesLidos = 0;
 
   const config = {
     compra: {
-      label:       'Compra',
-      titulo:      'Quantos galões deseja comprar?',
-      subtitulo:   'Cada galão inclui a recarga de 20 litros',
-      valorLabel:  'Total a pagar',
-      btnIcone:    '💳',
-      btnTexto:    'Avançar para pagamento',
-      maximo:      2,
-      mostraInfo:  false,
+      label:      'Compra',
+      titulo:     'Quantos galões deseja comprar?',
+      subtitulo:  'Cada galão inclui a recarga de 20 litros',
+      valorLabel: 'Total a pagar',
+      btnIcone:   '💳',
+      btnTexto:   'Avançar para pagamento',
+      maximo:     2,
+      mostraInfo: false,
     },
     troca: {
-      label:       'Troca',
-      titulo:      'Quantos galões deseja trocar?',
-      subtitulo:   'Você devolve vazios e recebe o mesmo número cheios',
-      valorLabel:  'Total da recarga',
-      btnIcone:    '💳',
-      btnTexto:    'Avançar para pagamento',
-      maximo:      state.clienteGaloes,
-      mostraInfo:  true,
-      infoLabel:   'Galões disponíveis para troca',
-      infoValor:   state.clienteGaloes,
+      label:      'Troca',
+      titulo:     'Quantos galões deseja trocar?',
+      subtitulo:  'Você devolve os vazios e recebe o mesmo número cheios',
+      valorLabel: 'Total da recarga',
+      btnIcone:   '💳',
+      btnTexto:   'Avançar para pagamento',
+      maximo:     state.clienteGaloes,
+      mostraInfo: true,
+      infoLabel:  'Galões disponíveis para troca',
+      infoValor:  state.clienteGaloes,
     },
     devolucao: {
-      label:       'Devolução',
-      titulo:      'Quantos galões deseja devolver?',
-      subtitulo:   'Os galões serão registrados como devolvidos',
-      valorLabel:  'Sem cobrança',
-      btnIcone:    '↩️',
-      btnTexto:    'Confirmar devolução',
-      maximo:      state.clienteGaloes,
-      mostraInfo:  true,
-      infoLabel:   'Galões em seu comodato',
-      infoValor:   state.clienteGaloes,
+      label:      'Devolução',
+      titulo:     'Quantos galões deseja devolver?',
+      subtitulo:  'Os galões serão inseridos um por um na máquina',
+      valorLabel: 'Sem cobrança',
+      btnIcone:   '↩️',
+      btnTexto:   'Confirmar devolução',
+      maximo:     state.clienteGaloes,
+      mostraInfo: true,
+      infoLabel:  'Galões em seu comodato',
+      infoValor:  state.clienteGaloes,
     },
   };
 
   const c = config[fluxo];
 
-  document.getElementById('qtd-label').textContent    = c.label;
-  document.getElementById('qtd-titulo').textContent   = c.titulo;
-  document.getElementById('qtd-subtitulo').textContent = c.subtitulo;
+  document.getElementById('qtd-label').textContent       = c.label;
+  document.getElementById('qtd-titulo').textContent      = c.titulo;
+  document.getElementById('qtd-subtitulo').textContent   = c.subtitulo;
   document.getElementById('qtd-valor-label').textContent = c.valorLabel;
-  document.getElementById('qtd-btn-icon').textContent = c.btnIcone;
-  document.getElementById('qtd-btn-texto').textContent = c.btnTexto;
-  document.getElementById('qtd-numero').textContent   = '1';
+  document.getElementById('qtd-btn-icon').textContent    = c.btnIcone;
+  document.getElementById('qtd-btn-texto').textContent   = c.btnTexto;
+  document.getElementById('qtd-numero').textContent      = '1';
 
-  // Linha de info (máximo disponível)
   const infoRow = document.getElementById('qtd-info-row');
   if (c.mostraInfo) {
     infoRow.style.display = 'flex';
@@ -611,17 +588,11 @@ function abrirSelecaoQuantidade(fluxo) {
     infoRow.style.display = 'none';
   }
 
-  // Armazena o máximo no estado para uso nos botões + / -
   state._qtdMaximo = c.maximo;
-
   atualizarValorQuantidade();
   goto('screen-quantidade');
 }
 
-/**
- * Incrementa ou decrementa a quantidade selecionada.
- * @param {number} delta — +1 ou -1
- */
 function alterarQtd(delta) {
   const nova = state.quantidade + delta;
   if (nova < 1 || nova > state._qtdMaximo) return;
@@ -630,51 +601,48 @@ function alterarQtd(delta) {
   atualizarValorQuantidade();
 }
 
-/**
- * Atualiza o valor exibido conforme quantidade e fluxo.
- */
 function atualizarValorQuantidade() {
-  let total = '';
-  if (state.fluxo === 'devolucao') {
-    total = 'Gratuito';
-  } else {
-    total = formatBRL(state.quantidade * state.precoUnitario);
-  }
+  const total = state.fluxo === 'devolucao'
+    ? 'Gratuito'
+    : formatBRL(state.quantidade * state.precoUnitario);
   document.getElementById('qtd-total').textContent = total;
 }
+// BUG CORRIGIDO: era um bloco solto, agora é uma função
+function confirmarQuantidade() {
+  if (state.fluxo === 'troca') {
+    // Troca: após escolher quantidade vai para inserir galões
+    document.getElementById('rfid-titulo').textContent = 
+      `Insira ${state.quantidade} galão(ões) vazio(s)`;
+    document.getElementById('rfid-msg').textContent =
+      `Coloque ${state.quantidade === 1 ? 'o galão vazio' : 'os galões vazios'} na entrada indicada.\nO sistema identificará automaticamente pelo RFID.`;
+    goto('screen-rfid-inserir');
 
-if (state.fluxo === 'compra' || state.fluxo === 'troca') {
-  // Monta o resumo
-  const caucao      = state.clienteGaloes === 0 ? 10 : 0;
-  const totalRecarga = state.quantidade * state.precoUnitario;
-  const total        = totalRecarga + caucao;
+  } else if (state.fluxo === 'compra') {
+    const caucao       = state.clienteGaloes === 0 ? 10 : 0;
+    const totalRecarga = state.quantidade * state.precoUnitario;
+    const total        = totalRecarga + caucao;
 
-  document.getElementById('resumo-label').textContent =
-    state.fluxo === 'compra' ? 'Resumo da compra' : 'Resumo da troca';
-  document.getElementById('resumo-quantidade').textContent =
-    state.quantidade + ' galão(ões)';
-  document.getElementById('resumo-recarga').textContent =
-    'R$ ' + formatBRL(totalRecarga);
-  document.getElementById('resumo-total').textContent =
-    formatBRL(total);
-  document.getElementById('pgto-total').textContent =
-    formatBRL(total);
+    document.getElementById('resumo-label').textContent     = 'Resumo da compra';
+    document.getElementById('resumo-quantidade').textContent = state.quantidade + ' galão(ões)';
+    document.getElementById('resumo-recarga').textContent   = 'R$ ' + formatBRL(totalRecarga);
+    document.getElementById('resumo-total').textContent     = formatBRL(total);
+    document.getElementById('pgto-total').textContent       = formatBRL(total);
+    document.getElementById('resumo-row-caucao').style.display =
+      state.clienteGaloes === 0 ? 'flex' : 'none';
 
-  // Mostra caução só para cliente novo (0 galões)
-  document.getElementById('resumo-row-caucao').style.display =
-    state.clienteGaloes === 0 ? 'flex' : 'none';
+    goto('screen-resumo-compra');
 
-  goto('screen-resumo-compra');
-
+  } else if (state.fluxo === 'devolucao') {
+    document.getElementById('rfid-titulo').textContent = 'Insira o Galão Vazio';
+    document.getElementById('rfid-msg').textContent =
+      `Insira ${state.quantidade} galão(ões) vazio(s) na entrada indicada.\nO sistema identificará automaticamente pelo RFID.`;
+    goto('screen-rfid-inserir');
+  }
+}
 
 // ══════════════════════════════════════════════════
 // 13. CADASTRO
 // ══════════════════════════════════════════════════
-
-/**
- * Chamada ao aceitar o termo de comodato.
- * Valida dados e avança para o menu do cliente.
- */
 function concluirCadastro() {
   if (!state.cpf || !state.nome || !state.email || !state.telefone) {
     showToast('⚠️ Dados incompletos — volte e preencha tudo');
@@ -682,15 +650,11 @@ function concluirCadastro() {
   }
 
   // TODO: POST /api/v1/clientes com { cpf, nome, email, telefone }
-
-  // Simula cliente recém-cadastrado (0 galões)
   state.clienteCPF    = state.cpf;
   state.clienteNome   = state.nome;
   state.clienteGaloes = 0;
 
   showToast('🎉 Cadastro realizado! Bem-vindo, ' + state.nome + '!');
-
-  // Novo cliente vai direto para compra
   renderizarMenuCliente();
   goto('screen-menu-cliente');
 }
@@ -698,32 +662,24 @@ function concluirCadastro() {
 
 // ══════════════════════════════════════════════════
 // 14. PAGAMENTO
+// BUG CORRIGIDO: processarPagamento ia para screen-pgto-recusado
+// agora vai corretamente para screen-aguardando-pagamento
 // ══════════════════════════════════════════════════
-
-/**
- * Inicia o fluxo de pagamento.
- * @param {string} metodo — 'PIX' | 'Débito' | 'Crédito' | 'Parcelado'
- */
 function processarPagamento(metodo) {
   const mensagens = {
-    'PIX':       'Escaneie o QR Code que aparecerá na maquininha',
-    'Débito':    'Aproxime ou insira o cartão de débito na maquininha',
-    'Crédito':   'Aproxime ou insira o cartão de crédito na maquininha',
-    'Parcelado': 'Insira o cartão e escolha as parcelas na maquininha',
+    'PIX':     'Escaneie o QR Code que aparecerá na maquininha',
+    'Débito':  'Aproxime ou insira o cartão de débito na maquininha',
+    'Crédito': 'Aproxime ou insira o cartão de crédito na maquininha',
   };
 
   document.getElementById('metodo-pagamento-msg').textContent =
     mensagens[metodo] || 'Realize o pagamento na maquininha';
 
   // TODO: POST /api/v1/pagamentos com { valor, metodo, fluxo }
-  goto('screen-pgto-recusado');
+  goto('screen-aguardando-pagamento');
   startPaymentTimer();
 }
 
-/**
- * Timer de espera pelo pagamento (60 segundos).
- * DEMO: aprova em 3 segundos. Remover em produção.
- */
 function startPaymentTimer() {
   let secs = 60;
   const fill  = document.getElementById('timer-fill');
@@ -737,11 +693,12 @@ function startPaymentTimer() {
     if (secs <= 0) {
       clearInterval(state.timer);
       state.timer = null;
+      showToast('⏱️ Tempo esgotado');
       goto('screen-pgto-recusado');
       return;
     }
 
-    // ── DEMO: aprova automaticamente em 3s ──
+    // DEMO: aprova automaticamente em 3s — remover em produção
     if (secs === 57) {
       clearInterval(state.timer);
       state.timer = null;
@@ -751,17 +708,10 @@ function startPaymentTimer() {
   }, 1000);
 }
 
-/**
- * Chamada quando o pagamento é aprovado.
- * Direciona conforme o fluxo atual.
- */
 function pagamentoAprovado() {
   if (state.fluxo === 'compra') {
-    // Compra: abre porta diretamente
     abrirPorta();
-
   } else if (state.fluxo === 'troca') {
-    // Troca: primeiro insere o galão vazio, depois abre porta
     document.getElementById('rfid-titulo').textContent = 'Insira o Galão Vazio';
     document.getElementById('rfid-msg').textContent =
       `Insira ${state.quantidade} galão(ões) vazio(s) na entrada indicada.\nO sistema identificará pelo RFID.`;
@@ -772,54 +722,68 @@ function pagamentoAprovado() {
 
 // ══════════════════════════════════════════════════
 // 15. RFID
+// BUG CORRIGIDO: tentava acessar rfid-ok-tag que não existe no HTML
 // ══════════════════════════════════════════════════
-
-/**
- * Simula leitura RFID.
- * PRODUÇÃO: substituir por evento MQTT do ESP32
- * tópico: vm/{id}/evt/rfid/leitura
- */
 function simularLeituraRFID() {
   showToast('📡 Lendo tag RFID...');
 
   setTimeout(() => {
-    // 80% de chance de sucesso na demo
     const sucesso = Math.random() > 0.2;
 
     if (!sucesso) {
+      document.getElementById('rfid-erro-opcao-compra').style.display =
+        state.fluxo === 'troca' ? 'block' : 'none';
       goto('screen-rfid-erro');
       return;
     }
 
-    // Tag simulada
-    const tag = 'E200 34' + Math.floor(Math.random() * 99).toString().padStart(2,'0') + ' AB7F';
+    // Incrementa contador de galões lidos
+    state.galoesLidos++;
 
-    document.getElementById('rfid-ok-tag').textContent = tag;
+    const faltam = state.quantidade - state.galoesLidos;
 
+    if (faltam > 0) {
+      // Ainda tem galões para inserir
+      showToast(`✅ Galão ${state.galoesLidos} reconhecido! Faltam ${faltam}.`);
+      document.getElementById('rfid-titulo').textContent =
+        `Insira o galão ${state.galoesLidos + 1} de ${state.quantidade}`;
+      document.getElementById('rfid-msg').textContent =
+        `${state.galoesLidos} de ${state.quantidade} galões reconhecidos.\nInsira o próximo galão.`;
+      // Fica na mesma tela aguardando o próximo
+      return;
+    }
+
+    // Todos os galões foram lidos
     if (state.fluxo === 'troca') {
-      document.getElementById('rfid-ok-titulo').textContent = 'Galão Reconhecido!';
-      document.getElementById('rfid-ok-row-valor').style.display = 'none';
-      document.getElementById('rfid-ok-btn-texto').textContent   = 'Retirar galão cheio';
+      document.getElementById('rfid-ok-titulo').textContent    = `${state.quantidade} Galão(ões) Reconhecido(s)!`;
+      document.getElementById('rfid-ok-row-valor').style.display = 'flex';
+      document.getElementById('rfid-ok-valor').textContent     = state.quantidade + ' galão(ões) válido(s)';
+      document.getElementById('rfid-ok-btn-texto').textContent = 'Confirmar e pagar';
 
     } else if (state.fluxo === 'devolucao') {
-      document.getElementById('rfid-ok-titulo').textContent = 'Devolução Confirmada!';
+      document.getElementById('rfid-ok-titulo').textContent    = `${state.quantidade} Galão(ões) Devolvido(s)!`;
       document.getElementById('rfid-ok-row-valor').style.display = 'flex';
-      document.getElementById('rfid-ok-valor').textContent  = state.quantidade + ' galão(ões)';
-      document.getElementById('rfid-ok-btn-texto').textContent   = 'Concluir devolução';
+      document.getElementById('rfid-ok-valor').textContent     = state.quantidade + ' galão(ões)';
+      document.getElementById('rfid-ok-btn-texto').textContent = 'Concluir devolução';
     }
 
     goto('screen-rfid-ok');
   }, 2000);
 }
 
-/**
- * Ação do botão de confirmação na tela S14 (RFID OK).
- */
 function confirmarRFID() {
   if (state.fluxo === 'troca') {
-    abrirPorta();
+    // Após RFID confirmado vai direto para pagamento
+    const total = state.quantidade * state.precoUnitario;
+    document.getElementById('pgto-total').textContent     = formatBRL(total);
+    document.getElementById('resumo-label').textContent   = 'Resumo da troca';
+    document.getElementById('resumo-quantidade').textContent = state.quantidade + ' galão(ões)';
+    document.getElementById('resumo-recarga').textContent = 'R$ ' + formatBRL(total);
+    document.getElementById('resumo-total').textContent   = formatBRL(total);
+    document.getElementById('resumo-row-caucao').style.display = 'none';
+    goto('screen-resumo-compra');
+
   } else if (state.fluxo === 'devolucao') {
-    // TODO: PATCH /api/v1/clientes/{cpf}/galoes com { devolvidos: quantidade }
     state.clienteGaloes -= state.quantidade;
     document.getElementById('concluida-msg').textContent =
       `${state.quantidade} galão(ões) devolvido(s) com sucesso.\nObrigado por usar Água Fácil! 💧`;
@@ -830,23 +794,16 @@ function confirmarRFID() {
 
 // ══════════════════════════════════════════════════
 // 16. PORTA
+// BUG CORRIGIDO: chave } sobrando dentro do while causava erro de sintaxe
 // ══════════════════════════════════════════════════
-
-/**
- * Abre a porta e inicia o timer de fechamento automático.
- * TODO: enviar comando MQTT ao ESP32 para abrir porta física.
- */
 function abrirPorta() {
-  // Gera números de portas aleatórios (1 a 9)
   const porta1 = Math.floor(Math.random() * 9) + 1;
   let porta2   = Math.floor(Math.random() * 9) + 1;
 
-  // Garante que as duas portas sejam diferentes
-  while (porta2 === porta1) 
+  while (porta2 === porta1) {
     porta2 = Math.floor(Math.random() * 9) + 1;
   }
 
-  // Monta o texto conforme a quantidade
   const textoPorta = state.quantidade === 2
     ? `Portas Nº ${porta1} e Nº ${porta2}`
     : `Porta Nº ${porta1}`;
@@ -862,9 +819,6 @@ function abrirPorta() {
   startPortaTimer();
 }
 
-/**
- * Timer de abertura de porta (30 segundos).
- */
 function startPortaTimer() {
   let secs = 30;
   const fill  = document.getElementById('porta-timer');
@@ -878,33 +832,28 @@ function startPortaTimer() {
     if (secs <= 0) {
       clearInterval(state.timer);
       state.timer = null;
-
-      // TODO: enviar comando MQTT para fechar porta
       document.getElementById('concluida-msg').textContent =
         'Sua transação foi concluída com sucesso.\nObrigado por usar Água Fácil! 💧';
       encerrarComSucesso();
     }
   }, 1000);
 }
-/**
- * Cliente confirma que retirou o produto.
- * Cancela o timer e vai para conclusão.
- */
+
 function confirmarRetirada() {
-    if (state.timer) {
+  if (state.timer) {
     clearInterval(state.timer);
     state.timer = null;
-    }
+  }
   // TODO: enviar comando MQTT para fechar porta
   document.getElementById('concluida-msg').textContent =
     'Produto retirado com sucesso.\nObrigado por usar Água Fácil! 💧';
   encerrarComSucesso();
 }
 
+
 // ══════════════════════════════════════════════════
 // 17. HISTÓRICO
 // ══════════════════════════════════════════════════
-
 function renderizarHistorico() {
   // TODO: GET /api/v1/clientes/{cpf}/historico
   const cliente = CLIENTES_MOCK[state.clienteCPF];
@@ -914,14 +863,12 @@ function renderizarHistorico() {
   document.getElementById('historico-sub').textContent  = 'Cliente desde ' + cliente.desde;
   document.getElementById('hist-galoes').textContent    = cliente.galoes;
   document.getElementById('hist-trocas').textContent    = cliente.trocas;
-  
 
-  // Transações simuladas
   const lista = document.getElementById('historico-lista');
   const transacoes = [
-    { data: '09/03/2026', desc: 'Troca de galão',     valor: 'R$ 15,00' },
-    { data: '24/02/2026', desc: 'Troca de galão',     valor: 'R$ 15,00' },
-    { data: '08/02/2026', desc: 'Cadastro + caução',  valor: 'R$ 25,00' },
+    { data: '09/03/2026', desc: 'Troca de galão',    valor: 'R$ 15,00' },
+    { data: '24/02/2026', desc: 'Troca de galão',    valor: 'R$ 15,00' },
+    { data: '08/02/2026', desc: 'Cadastro + caução', valor: 'R$ 25,00' },
   ];
 
   lista.innerHTML = transacoes.map(t => `
@@ -936,10 +883,6 @@ function renderizarHistorico() {
 // ══════════════════════════════════════════════════
 // 18. CONCLUSÃO E ENCERRAMENTO
 // ══════════════════════════════════════════════════
-
-/**
- * Vai para a tela de conclusão (S16) e inicia contagem regressiva.
- */
 function encerrarComSucesso() {
   goto('screen-concluida');
 
@@ -963,23 +906,19 @@ function encerrarComSucesso() {
   }, 1000);
 }
 
-/**
- * Limpa o estado e volta ao idle.
- */
 function encerrarSessao() {
-  if (state.timer)       { clearInterval(state.timer);   state.timer = null; }
+  if (state.timer)       { clearInterval(state.timer);      state.timer = null; }
   if (state.timerSessao) { clearTimeout(state.timerSessao); state.timerSessao = null; }
 
-  // Limpa dados da sessão
-  state.clienteNome    = '';
-  state.clienteCPF     = '';
-  state.clienteGaloes  = 0;
-  state.cpf            = '';
-  state.nome           = '';
-  state.email          = '';
-  state.telefone       = '';
-  state.fluxo          = '';
-  state.quantidade     = 1;
+  state.clienteNome   = '';
+  state.clienteCPF    = '';
+  state.clienteGaloes = 0;
+  state.cpf           = '';
+  state.nome          = '';
+  state.email         = '';
+  state.telefone      = '';
+  state.fluxo         = '';
+  state.quantidade    = 1;
 
   goto('screen-idle');
   showToast('👋 Até logo!');

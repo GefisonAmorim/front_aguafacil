@@ -57,19 +57,18 @@
         <div class="screen-subtitle">Como deseja continuar?</div>
         <div class="btn-stack">
           <button class="btn btn-primary" onclick="goto('screen-cpf-existente')">
-            <span class="btn-icon"></span>
-            <div class="btn-content">
-              <span class="btn-label">Já sou cliente</span>
-              <span class="btn-desc">Tenho cadastro — quero comprar</span>
-            </div>
-          </button>
-          <button class="btn btn-secondary" onclick="goto('screen-cad-cpf')">
-            <span class="btn-icon"></span>
-            <div class="btn-content">
-              <span class="btn-label">Primeiro acesso</span>
-              <span class="btn-desc">Ainda não tenho cadastro</span>
-            </div>
-          </button>
+  <div class="btn-content">
+    <span class="btn-label">Já sou cliente</span>
+    <span class="btn-desc-primary"></span>
+  </div>
+</button>
+
+<button class="btn btn-secondary" onclick="goto('screen-cad-cpf')">
+  <div class="btn-content">
+    <span class="btn-label">Faça seu cadastro</span>
+    <span class="btn-desc-secondary"></span>
+  </div>
+</button>
         </div>
         <button class="btn btn-ghost w100 mt16" onclick="goto('screen-idle')">← Voltar</button>
       </div>
@@ -194,28 +193,113 @@
         <button class="btn btn-ghost w100 mt16" onclick="goto('screen-cad-tel')">← Voltar</button>
       </div>
     </div>
+<!-- ══════════════════════════════════
+     S09 — MENU DO CLIENTE
+══════════════════════════════════ -->
+<div class="screen" id="screen-menu-cliente">
+  <div class="card card-wide">
+    <div class="cliente-banner">
+      <div class="cliente-avatar">👤</div>
+      <div>
+        <div class="cliente-info-name" id="cliente-nome-display">—</div>
+        <div class="cliente-info-sub" id="cliente-sub-display">Carregando...</div>
+      </div>
+    </div>
+    <div class="section-label mb8">O que deseja fazer?</div>
+    <div class="menu-grid" id="menu-opcoes">
+      <!-- Renderizado pelo JS -->
+    </div>
+    <button class="btn btn-ghost w100 mt16" onclick="encerrarSessao()">← Sair</button>
+  </div>
+</div>
 
-    <!-- ══════════════════════════════════
-         S09 — MENU DO CLIENTE
-         Opções variam conforme galões em comodato
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-menu-cliente">
-      <div class="card card-wide">
-        <div class="cliente-banner">
-          <div class="cliente-avatar">👤</div>
-          <div>
-            <div class="cliente-info-name" id="cliente-nome-display">—</div>
-            <div class="cliente-info-sub" id="cliente-sub-display">Carregando...</div>
-          </div>
-        </div>
-        <div class="section-label mb8">O que deseja fazer?</div>
-        <div class="menu-grid" id="menu-opcoes">
-          <!-- Opções renderizadas dinamicamente pelo JS conforme galões do cliente -->
-        </div>
-        <button class="btn btn-ghost w100 mt16" onclick="encerrarSessao()">← Sair</button>
+<!-- ══════════════════════════════════
+     S09b — PEGAR GALÃO
+     Detecta automaticamente troca ou compra
+══════════════════════════════════ -->
+<div class="screen" id="screen-pegar-galao">
+  <div class="card" style="text-align:center">
+    <div class="cliente-banner" style="margin-bottom:24px">
+      <div class="cliente-avatar">👤</div>
+      <div>
+        <div class="cliente-info-name" id="pegar-nome">—</div>
+        <div class="cliente-info-sub" id="pegar-sub">—</div>
       </div>
     </div>
 
+    <!-- Cliente tem galões → troca ou compra adicional -->
+    <div id="pegar-cenario-troca">
+      <div class="feedback-icon success" style="font-size:48px;width:90px;height:90px">🔄</div>
+      <div class="feedback-title" style="font-size:32px;color:#0a1f3d">
+        Você tem galão(ões) para trocar!
+      </div>
+      <div class="feedback-msg" style="margin:12px 0 24px">
+        Traga seu(s) galão(ões) vazio(s) e receba cheio(s).<br>
+        Ou se preferir, compre um galão adicional.
+      </div>
+      <div class="btn-stack">
+        <button class="btn btn-primary" onclick="iniciarTroca()">
+          <span class="btn-icon">🔄</span>
+          <span>Trocar galão vazio por cheio</span>
+        </button>
+        <button class="btn btn-secondary" onclick="iniciarCompra()">
+          <span class="btn-icon">🛒</span>
+          <span>Comprar galão adicional</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cliente sem galões → só compra -->
+    <div id="pegar-cenario-compra" style="display:none">
+      <div class="feedback-icon waiting" style="font-size:48px;width:90px;height:90px">💧</div>
+      <div class="feedback-title" style="font-size:32px;color:#0a1f3d">
+        Vamos começar!
+      </div>
+      <div class="feedback-msg" style="margin:12px 0 24px">
+        Você ainda não tem galão em comodato.<br>
+        Escolha quantos galões deseja adquirir.
+      </div>
+      <button class="btn btn-primary" onclick="iniciarCompra()">
+        <span class="btn-icon">🛒</span>
+        <span>Comprar galão</span>
+      </button>
+    </div>
+
+    <button class="btn btn-ghost w100 mt16" onclick="goto('screen-menu-cliente')">← Voltar</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     S10 — SELEÇÃO DE QUANTIDADE
+══════════════════════════════════ -->
+<div class="screen" id="screen-quantidade">
+  <div class="card">
+    <div class="section-label" id="qtd-label">Compra</div>
+    <div class="screen-title" style="font-size:36px" id="qtd-titulo">Quantos galões?</div>
+    <div class="screen-subtitle" id="qtd-subtitulo">Selecione a quantidade desejada</div>
+    <div class="qtd-selector">
+      <button class="qtd-btn" onclick="alterarQtd(-1)">−</button>
+      <div class="qtd-display">
+        <span id="qtd-numero">1</span>
+        <span class="qtd-unit">galão(ões)</span>
+      </div>
+      <button class="qtd-btn" onclick="alterarQtd(1)">+</button>
+    </div>
+    <div class="valor-box" style="margin:20px 0">
+      <div class="valor-label" id="qtd-valor-label">Total estimado</div>
+      <div class="valor-total">R$ <span id="qtd-total">15,00</span></div>
+    </div>
+    <div class="info-row" id="qtd-info-row" style="display:none">
+      <span class="info-label" id="qtd-info-label">Galões disponíveis</span>
+      <span class="info-value" id="qtd-info-valor">—</span>
+    </div>
+    <button class="btn btn-primary mt16" onclick="confirmarQuantidade()">
+      <span class="btn-icon" id="qtd-btn-icon">💳</span>
+      <span id="qtd-btn-texto">Avançar para pagamento</span>
+    </button>
+    <button class="btn btn-ghost w100 mt8" onclick="goto('screen-menu-cliente')">← Cancelar</button>
+  </div>
+</div>
     <!-- ══════════════════════════════════
      S10b — RESUMO DA COMPRA
      Confirmação antes do pagamento
@@ -469,25 +553,37 @@
         </button>
       </div>
     </div>
-    <!-- ══════════════════════════════════
-         S18 — ERRO: RFID NÃO RECONHECIDO
-    ══════════════════════════════════ -->
-    <div class="screen" id="screen-rfid-erro">
-      <div class="card" style="text-align:center">
-        <div class="feedback-icon error">⚠️</div>
-        <div class="feedback-title" style="color:var(--vermelho)">Galão Não Reconhecido</div>
-        <div class="feedback-msg">
-          Não foi possível identificar este galão.<br>
-          Verifique se o galão é da Água Fácil e tente novamente.
-        </div>
-        <div class="btn-stack mt24">
-          <button class="btn btn-primary" onclick="goto('screen-rfid-inserir')">
-            🔄 Tentar novamente
-          </button>
-          <button class="btn btn-ghost" onclick="goto('screen-menu-cliente')">← Voltar ao menu</button>
-        </div>
-      </div>
+<!-- S18 — ERRO: RFID NÃO RECONHECIDO -->
+<div class="screen" id="screen-rfid-erro">
+  <div class="card" style="text-align:center">
+    <div class="feedback-icon error">⚠️</div>
+    <div class="feedback-title" style="color:var(--vermelho)">Galão Não Reconhecido</div>
+    <div class="feedback-msg">
+      Não foi possível identificar este galão.<br>
+      Verifique se o galão é da Água Leve Mogiana.
     </div>
+
+    <div class="btn-stack mt24">
+      <button class="btn btn-primary" onclick="goto('screen-rfid-inserir')">
+        🔄 Tentar novamente
+      </button>
+
+      <!-- Aparece só no fluxo de troca -->
+      <div id="rfid-erro-opcao-compra" style="display:none">
+        <div class="feedback-msg" style="margin:16px 0;font-size:17px">
+          Deseja adquirir um galão novo?
+        </div>
+        <button class="btn btn-secondary" onclick="iniciarCompraAposErro()">
+          🛒 Comprar galão novo
+        </button>
+      </div>
+
+      <button class="btn btn-ghost" onclick="goto('screen-menu-cliente')">
+        ← Voltar ao menu
+      </button>
+    </div>
+  </div>
+</div>
 
      <!-- ══════════════════════════════════
      S19 — ERRO: PAGAMENTO RECUSADO
